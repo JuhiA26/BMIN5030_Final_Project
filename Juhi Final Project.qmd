@@ -1,7 +1,11 @@
 ---
 title: "Modeling for Predicting Non-Alcoholic Fatty Liver Disease differing by Gender"
+subtitle: "BMIN5030 Final Project"
+author: "Juhi Aggarwal"
 format: html
 editor: visual
+number-sections: true
+embed-resources: true
 ---
 
 # Overview
@@ -100,10 +104,10 @@ head(nhanes_dataJA)
 ```{r}
 
 table(nhanes_dataJA$RIAGENDR)
-clean_df <- nhanes_dataJA %>% drop_na(LUXSMED, LUXCAPM,ALQ111)
-table(clean_df$RIAGENDR)
-table(clean_df$ALQ121)
-table(clean_df$ALQ130)
+clean_NHANES <- nhanes_dataJA %>% drop_na(LUXSMED, LUXCAPM,ALQ111)
+#table(clean_NHANES$RIAGENDR)
+#table(clean_NHANES$ALQ121)
+#table(clean_NHANES$ALQ130)
 
 
 #some analysis ideas Build a model to predict? Build a cohort Sex differences anylsis. How many cases/controls (indication values vs not indicatios). Descriptive (Table 1). Unsupervised (clustering) as exploritory then do some supervised. Final predictive can we predict the level of assoiatiom RF, reg (lasso), decision tree, feature importance analysis. Maybe male vs female (two different models)
