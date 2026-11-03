@@ -1,0 +1,111 @@
+---
+title: "Modeling for Predicting Non-Alcoholic Fatty Liver Disease differing by Gender"
+format: html
+editor: visual
+---
+
+# Overview
+
+The over
+
+# Introduction
+
+When speaking to **Dr. Angela Aherrera**, Assistant Professor of Biostatistics and Epidemiology we spoke about environmental factors and the effects of heavy metal on the human body. Dr. Aherrera works with occupational cohorts and noted that heavy metal exposure can occur though the workplace and food/water consumption. From this information I chose to include these heavy metals in the model. When speaking to **Dr. John Holmes,** Professor, Biostatistics, Epidemiology, and Informatics about this project he suggested that one can use informatics to help determine what factors are important in the development of NAFLD by creating predictive models with several different variables.
+
+```{r}
+#installing NHANES Data
+#install.packages("nhanesA")
+library(nhanesA)
+library(tidyverse)
+library(dplyr)
+
+```
+
+```{r}
+#get NAHANES DEMO variables Demo file
+demo_vars <- c("SEQN", "SDDSRVYR", "RIAGENDR", "RIDAGEYR", "RIDRETH1", "DMDEDUC2")
+#add blood metal variables PBCD_L file
+Bloodmetal_var  <- c("SEQN", "LBXBCD", "LBDBCDSI", "LBDBCDLC", "LBXBPB","LBDBPBSI","LBDBPBLC")
+
+#add liver data
+liver_var<- c("SEQN","LUXSMED","LUXCAPM")
+# add alcohol data
+Alc_var<-c("SEQN","ALQ111","ALQ121","ALQ130")
+#Hep B/c Data
+Hep_var<- c("SEQN","HEQ010")
+
+#Smoking
+#Weight
+#diabetes
+#estrogen
+#Reproductive health (first period, gestational diabietes,menopause)
+
+
+demo <- bind_rows(
+  nhanes("P_DEMO") |> select(all_of(demo_vars)),
+  nhanes("DEMO_L") |> select(all_of(demo_vars))
+)
+
+BloodMetals <- bind_rows(
+  nhanes("P_PBCD") |> select(all_of(Bloodmetal_var)),
+  nhanes("PBCD_L") |> select(all_of(Bloodmetal_var))
+)
+
+liverdata <- bind_rows(
+  nhanes("P_LUX") |> select(all_of(liver_var)),
+  nhanes("LUX_L") |> select(all_of(liver_var))
+)
+
+AlcData <- bind_rows(
+  nhanes("P_ALQ") |> select(all_of(Alc_var)),
+  nhanes("ALQ_L") |> select(all_of(Alc_var))
+)
+
+HepData <- bind_rows(
+  nhanes("P_HEQ") |> select(all_of(Hep_var)),
+  nhanes("HEQ_L") |> select(all_of(Hep_var))
+)
+
+
+nhanes_dataJA <- left_join(demo, BloodMetals, by = "SEQN")
+nhanes_dataJA <- left_join(nhanes_dataJA,liverdata, by = "SEQN")
+nhanes_dataJA <- left_join(nhanes_dataJA,HepData, by = "SEQN")
+nhanes_dataJA <- left_join(nhanes_dataJA,AlcData, by = "SEQN")
+
+head(nhanes_dataJA)
+```
+
+| Survey | Variable | Question 2017-2020 | Question 2021-2023 |
+|------------------|------------------|------------------|------------------|
+| DEMO | SDDSRVYR | Data release cycle | Data release cycle |
+| DEMO | RIAGENDR | Age in years of the participant at the time of screening. Individuals 80 and over are topcoded at 80 years of age. | Age in years of the participant at the time of screening. Individuals 80 and over are top-coded at 80 years of age. |
+| DEMO | RIDAGEYR | Gender of the participant. | Gender of the participant. |
+| DEMO | RIDRETH1 | Recode of reported race and Hispanic origin information | Recode of reported race and Hispanic origin information |
+| DEMO | DMDEDUC2 | What is the highest grade or level of school {you have/SP has} completed or the highest degree {you have/s/he has} received? | What is the highest grade or level of school {you have/SP has} completed or the highest degree {you have/s/he has} received? |
+| PBCD | LBXBCD |  |  |
+| PBCD | LBDBCDSI |  |  |
+| PBCD | LBDBCDLC |  |  |
+| PBCD | LBXBPB |  |  |
+| PBCD | LBDBPBSI |  |  |
+| PBCD | LBDBPBLC |  |  |
+| LUX | LUXSMED |  |  |
+| LUX | LUXCAPM |  |  |
+| ALQ | ALQ111 |  |  |
+| ALQ | ALQ121 |  |  |
+| ALQ | ALQ130 |  |  |
+| HEQ | HEQ010 |  |  |
+|  |  |  |  |
+|  |  |  |  |
+
+```{r}
+
+table(nhanes_dataJA$RIAGENDR)
+clean_df <- nhanes_dataJA %>% drop_na(LUXSMED, LUXCAPM,ALQ111)
+table(clean_df$RIAGENDR)
+table(clean_df$ALQ121)
+table(clean_df$ALQ130)
+
+
+#some analysis ideas Build a model to predict? Build a cohort Sex differences anylsis. How many cases/controls (indication values vs not indicatios). Descriptive (Table 1). Unsupervised (clustering) as exploritory then do some supervised. Final predictive can we predict the level of assoiatiom RF, reg (lasso), decision tree, feature importance analysis. Maybe male vs female (two different models)
+
+```
