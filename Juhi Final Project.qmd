@@ -10,9 +10,13 @@ embed-resources: true
 
 # Overview
 
-The over
+The main goal of this study is to build and compare different models to predict for the indication of Non-Alcoholic Fatty Liver Disease (NAFLD) and if we need to use different models based on gender. I have spoken to **Dr. Angela Aherrera** regarding the environmental factors that can impact NAFLD and **Dr. John Holmes** to determine how to use infomatics to help predict the outcomes.
+
+GitHub Repository: <https://github.com/JuhiA26/BMIN5030_Final_Project/tree/master>
 
 # Introduction
+
+Non-alcoholic fatty liver disease (NAFLD) is one of the most common chronic form of liver disease with roughly 25% of adults being diagnosed with it worldwide. The difference between NAFLD and Fatty liver disease is the lack of excessive drinking (*1*). In this study calculated as 2 drinks per day for men and 1 for women (*2*). Starting in 2017-2018 NHANES started to use the FibroScan model 502 V2 Touch machine to estimate liver fibrosis. Liver stiffness and liver fat is quantified by controlled attenuation parameter (CAP), any score above 285 dB/m was considered as diagnosed with NAFLD (*2*, *3*). There are differences between the pathways of NAFLD between men and woman. Men having a higher prevenance of NAFLD compared to women (*4*). However women with estrogen deficiency are at a higher risk for NAFLD and higher mortality rates then men of the same age. This study will include women specific variables such as early onset menstruation, gestational diabetes and menopause status(*4*). This study wants to look at the different factors (including women specific factors) to determine NAFLD.
 
 When speaking to **Dr. Angela Aherrera**, Assistant Professor of Biostatistics and Epidemiology we spoke about environmental factors and the effects of heavy metal on the human body. Dr. Aherrera works with occupational cohorts and noted that heavy metal exposure can occur though the workplace and food/water consumption. From this information I chose to include these heavy metals in the model. When speaking to **Dr. John Holmes,** Professor, Biostatistics, Epidemiology, and Informatics about this project he suggested that one can use informatics to help determine what factors are important in the development of NAFLD by creating predictive models with several different variables.
 
@@ -42,7 +46,7 @@ Hep_var<- c("SEQN","HEQ010")
 #Weight
 #diabetes
 #estrogen
-#Reproductive health (first period, gestational diabietes,menopause)
+#Reproductive health (first period, gestational diabietes,menopause, HRT)
 
 
 demo <- bind_rows(
@@ -113,3 +117,25 @@ clean_NHANES <- nhanes_dataJA %>% drop_na(LUXSMED, LUXCAPM,ALQ111)
 #some analysis ideas Build a model to predict? Build a cohort Sex differences anylsis. How many cases/controls (indication values vs not indicatios). Descriptive (Table 1). Unsupervised (clustering) as exploritory then do some supervised. Final predictive can we predict the level of assoiatiom RF, reg (lasso), decision tree, feature importance analysis. Maybe male vs female (two different models)
 
 ```
+
+## Methods {#sec-methods}
+
+Describe the data used and general methodological approach used to address the problem described in the @sec-introduction. Subsequently, incorporate full R code necessary to retrieve and clean data, and perform analysis. Be sure to include a description of code so that others (including your future self) can understand what you are doing and why.
+
+## Results {#sec-results}
+
+Describe your results and include relevant tables, plots, and code/comments used to obtain them. You may refer to the @sec-methods as needed. End with a brief conclusion of your findings related to the question you set out to address. You can include references if you'd like, but this is not required.
+
+## Conclusion
+
+This the conclusion. The @sec-results can be invoked here.
+
+## References
+
+1\. J. Maurice, P. Manousou, Non-alcoholic fatty liver disease. *Clin. Med.* **18**, 245–250 (2018).
+
+2\. M. Kalligeros, S. Vassilopoulos, A. Vassilopoulos, F. Shehadeh, I. Lazaridou, E. Mylonakis, K. Promrat, J. R. Wands, Prevalence and risk factors of nonalcoholic fatty liver disease, high-risk nonalcoholic steatohepatitis, and fibrosis among lean United States adults: NHANES 2017-2020. *Ann. Gastroenterol.* **36**, 670–677 (2023).
+
+3\. P. J. Eddowes, M. Sasso, M. Allison, E. Tsochatzis, Q. M. Anstee, D. Sheridan, I. N. Guha, J. F. Cobbold, J. J. Deeks, V. Paradis, P. Bedossa, P. N. Newsome, Accuracy of FibroScan Controlled Attenuation Parameter and Liver Stiffness Measurement in Assessing Steatosis and Fibrosis in Patients With Nonalcoholic Fatty Liver Disease. *Gastroenterology* **156**, 1717–1730 (2019).
+
+4\. P. C. Eng, R. Forlano, T. Tan, P. Manousou, W. S. Dhillo, C. Izzi-Engbeaya, Non-alcoholic fatty liver disease in women – Current knowledge and emerging concepts. *JHEP Rep.* **5** (2023).

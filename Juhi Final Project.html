@@ -2234,10 +2234,12 @@ vertical-align: -.125em;
 
 <section id="overview" class="level1" data-number="1">
 <h1 data-number="1"><span class="header-section-number">1</span> Overview</h1>
-<p>The over</p>
+<p>The main goal of this study is to build and compare different models to predict for the indication of Non-Alcoholic Fatty Liver Disease (NAFLD) and if we need to use different models based on gender. I have spoken to <strong>Dr. Angela Aherrera</strong> regarding the environmental factors that can impact NAFLD and <strong>Dr. John Holmes</strong> to determine how to use infomatics to help predict the outcomes.</p>
+<p>GitHub Repository: <a href="https://github.com/JuhiA26/BMIN5030_Final_Project/tree/master" class="uri">https://github.com/JuhiA26/BMIN5030_Final_Project/tree/master</a></p>
 </section>
 <section id="introduction" class="level1" data-number="2">
 <h1 data-number="2"><span class="header-section-number">2</span> Introduction</h1>
+<p>Non-alcoholic fatty liver disease (NAFLD) is one of the most common chronic form of liver disease with roughly 25% of adults being diagnosed with it worldwide. The difference between NAFLD and Fatty liver disease is the lack of excessive drinking (<em>1</em>). In this study calculated as 2 drinks per day for men and 1 for women (<em>2</em>). Starting in 2017-2018 NHANES started to use the FibroScan model 502 V2 Touch machine to estimate liver fibrosis. Liver stiffness and liver fat is quantified by controlled attenuation parameter (CAP), any score above 285 dB/m was considered as diagnosed with NAFLD (<em>2</em>, <em>3</em>). There are differences between the pathways of NAFLD between men and woman. Men having a higher prevenance of NAFLD compared to women (<em>4</em>). However women with estrogen deficiency are at a higher risk for NAFLD and higher mortality rates then men of the same age. This study will include women specific variables such as early onset menstruation, gestational diabetes and menopause status(<em>4</em>). This study wants to look at the different factors (including women specific factors) to determine NAFLD.</p>
 <p>When speaking to <strong>Dr. Angela Aherrera</strong>, Assistant Professor of Biostatistics and Epidemiology we spoke about environmental factors and the effects of heavy metal on the human body. Dr. Aherrera works with occupational cohorts and noted that heavy metal exposure can occur though the workplace and food/water consumption. From this information I chose to include these heavy metals in the model. When speaking to <strong>Dr. John Holmes,</strong> Professor, Biostatistics, Epidemiology, and Informatics about this project he suggested that one can use informatics to help determine what factors are important in the development of NAFLD by creating predictive models with several different variables.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#installing NHANES Data</span></span>
@@ -2275,7 +2277,7 @@ vertical-align: -.125em;
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co">#Weight</span></span>
 <span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co">#diabetes</span></span>
 <span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co">#estrogen</span></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co">#Reproductive health (first period, gestational diabietes,menopause)</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co">#Reproductive health (first period, gestational diabietes,menopause, HRT)</span></span>
 <span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>demo <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
@@ -2487,41 +2489,33 @@ vertical-align: -.125em;
   Male Female 
  13296  14197 </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>clean_df <span class="ot">&lt;-</span> nhanes_dataJA <span class="sc">%&gt;%</span> <span class="fu">drop_na</span>(LUXSMED, LUXCAPM,ALQ111)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(clean_df<span class="sc">$</span>RIAGENDR)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-  Male Female 
-  6321   6691 </code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>clean_NHANES <span class="ot">&lt;-</span> nhanes_dataJA <span class="sc">%&gt;%</span> <span class="fu">drop_na</span>(LUXSMED, LUXCAPM,ALQ111)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co">#table(clean_NHANES$RIAGENDR)</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">#table(clean_NHANES$ALQ121)</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">#table(clean_NHANES$ALQ130)</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co">#some analysis ideas Build a model to predict? Build a cohort Sex differences anylsis. How many cases/controls (indication values vs not indicatios). Descriptive (Table 1). Unsupervised (clustering) as exploritory then do some supervised. Final predictive can we predict the level of assoiatiom RF, reg (lasso), decision tree, feature importance analysis. Maybe male vs female (two different models)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(clean_df<span class="sc">$</span>ALQ121)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-        Never in the last year                      Every day 
-                          2274                            377 
-              Nearly every day            3 to 4 times a week 
-                           538                            935 
-                2 times a week                    Once a week 
-                          1017                            944 
-          2 to 3 times a month                   Once a month 
-                          1537                            879 
-7 to 11 times in the last year  3 to 6 times in the last year 
-                           684                           1239 
- 1 to 2 times in the last year                        Refused 
-                          1274                              4 
-                    Don&#39;t know 
-                             3 </code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(clean_df<span class="sc">$</span>ALQ130)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-   1    2    3    4    5    6    7    8    9   10   11   12   13   14   15  777 
-3254 2926 1380  660  423  328   57  101   31   70    7  104    4    2   47    2 
- 999 
-  17 </code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">#some analysis ideas Build a model to predict? Build a cohort Sex differences anylsis. How many cases/controls (indication values vs not indicatios). Descriptive (Table 1). Unsupervised (clustering) as exploritory then do some supervised. Final predictive can we predict the level of assoiatiom RF, reg (lasso), decision tree, feature importance analysis. Maybe male vs female (two different models)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
+<section id="sec-methods" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="sec-methods"><span class="header-section-number">2.1</span> Methods</h2>
+<p>Describe the data used and general methodological approach used to address the problem described in the <strong>?@sec-introduction</strong>. Subsequently, incorporate full R code necessary to retrieve and clean data, and perform analysis. Be sure to include a description of code so that others (including your future self) can understand what you are doing and why.</p>
+</section>
+<section id="sec-results" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="sec-results"><span class="header-section-number">2.2</span> Results</h2>
+<p>Describe your results and include relevant tables, plots, and code/comments used to obtain them. You may refer to the <a href="#sec-methods" class="quarto-xref">Section 2.1</a> as needed. End with a brief conclusion of your findings related to the question you set out to address. You can include references if you’d like, but this is not required.</p>
+</section>
+<section id="conclusion" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="conclusion"><span class="header-section-number">2.3</span> Conclusion</h2>
+<p>This the conclusion. The <a href="#sec-results" class="quarto-xref">Section 2.2</a> can be invoked here.</p>
+</section>
+<section id="references" class="level2" data-number="2.4">
+<h2 data-number="2.4" class="anchored" data-anchor-id="references"><span class="header-section-number">2.4</span> References</h2>
+<p>1. J. Maurice, P. Manousou, Non-alcoholic fatty liver disease. <em>Clin. Med.</em> <strong>18</strong>, 245–250 (2018).</p>
+<p>2. M. Kalligeros, S. Vassilopoulos, A. Vassilopoulos, F. Shehadeh, I. Lazaridou, E. Mylonakis, K. Promrat, J. R. Wands, Prevalence and risk factors of nonalcoholic fatty liver disease, high-risk nonalcoholic steatohepatitis, and fibrosis among lean United States adults: NHANES 2017-2020. <em>Ann. Gastroenterol.</em> <strong>36</strong>, 670–677 (2023).</p>
+<p>3. P. J. Eddowes, M. Sasso, M. Allison, E. Tsochatzis, Q. M. Anstee, D. Sheridan, I. N. Guha, J. F. Cobbold, J. J. Deeks, V. Paradis, P. Bedossa, P. N. Newsome, Accuracy of FibroScan Controlled Attenuation Parameter and Liver Stiffness Measurement in Assessing Steatosis and Fibrosis in Patients With Nonalcoholic Fatty Liver Disease. <em>Gastroenterology</em> <strong>156</strong>, 1717–1730 (2019).</p>
+<p>4. P. C. Eng, R. Forlano, T. Tan, P. Manousou, W. S. Dhillo, C. Izzi-Engbeaya, Non-alcoholic fatty liver disease in women – Current knowledge and emerging concepts. <em>JHEP Rep.</em> <strong>5</strong> (2023).</p>
+</section>
 </section>
 
 </main>
