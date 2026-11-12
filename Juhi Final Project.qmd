@@ -16,7 +16,7 @@ GitHub Repository: <https://github.com/JuhiA26/BMIN5030_Final_Project/tree/maste
 
 # Introduction
 
-Non-alcoholic fatty liver disease (NAFLD) is one of the most common chronic form of liver disease with roughly 25% of adults being diagnosed with it worldwide. The difference between NAFLD and Fatty liver disease is the lack of excessive drinking (*1*). In this study calculated as 2 drinks per day for men and 1 for women (*2*). Starting in 2017-2018 NHANES started to use the FibroScan model 502 V2 Touch machine to estimate liver fibrosis. Liver stiffness and liver fat is quantified by controlled attenuation parameter (CAP), any score above 285 dB/m was considered as diagnosed with NAFLD (*2*, *3*). There are differences between the pathways of NAFLD between men and woman. Men having a higher prevenance of NAFLD compared to women (*4*). However women with estrogen deficiency are at a higher risk for NAFLD and higher mortality rates then men of the same age. This study will include women specific variables such as early onset menstruation, gestational diabetes and menopause status(*4*). This study wants to look at the different factors (including women specific factors) to determine NAFLD.
+Non-alcoholic fatty liver disease (NAFLD) is one of the most common chronic form of liver disease with roughly 25% of adults being diagnosed with it worldwide. The difference between NAFLD and Fatty liver disease is the lack of excessive drinking and the diagnosis of Hepatitis B or C(*1*). In this study calculated as 2 drinks per day for men and 1 for women (*2*). Starting in 2017-2018 NHANES started to use the FibroScan model 502 V2 Touch machine to estimate liver fibrosis. Liver stiffness and liver fat is quantified by controlled attenuation parameter (CAP), any score above 285 dB/m was considered as diagnosed with NAFLD (*2*, *3*). There are differences between the pathways of NAFLD between men and woman. Men having a higher provenance of NAFLD compared to women (*4*). However women with estrogen deficiency are at a higher risk for NAFLD and higher mortality rates then men of the same age. This study will include women specific variables such as early onset menstruation, gestational diabetes and menopause status(*4*). This study wants to look at the different factors (including women specific factors) to determine NAFLD.
 
 When speaking to **Dr. Angela Aherrera**, Assistant Professor of Biostatistics and Epidemiology we spoke about environmental factors and the effects of heavy metal on the human body. Dr. Aherrera works with occupational cohorts and noted that heavy metal exposure can occur though the workplace and food/water consumption. From this information I chose to include these heavy metals in the model. When speaking to **Dr. John Holmes,** Professor, Biostatistics, Epidemiology, and Informatics about this project he suggested that one can use informatics to help determine what factors are important in the development of NAFLD by creating predictive models with several different variables.
 
@@ -39,8 +39,10 @@ Bloodmetal_var  <- c("SEQN", "LBXBCD", "LBDBCDSI", "LBDBCDLC", "LBXBPB","LBDBPBS
 liver_var<- c("SEQN","LUXSMED","LUXCAPM")
 # add alcohol data
 Alc_var<-c("SEQN","ALQ111","ALQ121","ALQ130")
-#Hep B/c Data
-Hep_var<- c("SEQN","HEQ010")
+#Hep c Antibody
+HepC_var<- c("SEQN","LBDHCI")
+#Hep B Antibody
+HepB_var<- c("SEQN","LBXHBC")
 
 #Smoking
 #Weight
@@ -48,6 +50,7 @@ Hep_var<- c("SEQN","HEQ010")
 #estrogen
 #Reproductive health (first period, gestational diabietes,menopause, HRT)
 
+#adding data
 
 demo <- bind_rows(
   nhanes("P_DEMO") |> select(all_of(demo_vars)),
@@ -69,49 +72,71 @@ AlcData <- bind_rows(
   nhanes("ALQ_L") |> select(all_of(Alc_var))
 )
 
-HepData <- bind_rows(
-  nhanes("P_HEQ") |> select(all_of(Hep_var)),
-  nhanes("HEQ_L") |> select(all_of(Hep_var))
+HepCData <- bind_rows(
+  nhanes("P_HEPC") |> select(all_of(HepC_var)),
+  nhanes("HEPC_L") |> select(all_of(HepC_var))
+)
+HepBData <- bind_rows(
+  nhanes("P_HEPBD") |> select(all_of(HepB_var)),
+  nhanes("HEPBD_L") |> select(all_of(HepB_var))
 )
 
 
 nhanes_dataJA <- left_join(demo, BloodMetals, by = "SEQN")
 nhanes_dataJA <- left_join(nhanes_dataJA,liverdata, by = "SEQN")
-nhanes_dataJA <- left_join(nhanes_dataJA,HepData, by = "SEQN")
+nhanes_dataJA <- left_join(nhanes_dataJA,HepBData, by = "SEQN")
 nhanes_dataJA <- left_join(nhanes_dataJA,AlcData, by = "SEQN")
+nhanes_dataJA <- left_join(nhanes_dataJA,HepCData, by = "SEQN")
 
 head(nhanes_dataJA)
 ```
 
-| Survey | Variable | Question 2017-2020 | Question 2021-2023 |
-|------------------|------------------|------------------|------------------|
-| DEMO | SDDSRVYR | Data release cycle | Data release cycle |
-| DEMO | RIAGENDR | Age in years of the participant at the time of screening. Individuals 80 and over are topcoded at 80 years of age. | Age in years of the participant at the time of screening. Individuals 80 and over are top-coded at 80 years of age. |
-| DEMO | RIDAGEYR | Gender of the participant. | Gender of the participant. |
-| DEMO | RIDRETH1 | Recode of reported race and Hispanic origin information | Recode of reported race and Hispanic origin information |
-| DEMO | DMDEDUC2 | What is the highest grade or level of school {you have/SP has} completed or the highest degree {you have/s/he has} received? | What is the highest grade or level of school {you have/SP has} completed or the highest degree {you have/s/he has} received? |
-| PBCD | LBXBCD |  |  |
-| PBCD | LBDBCDSI |  |  |
-| PBCD | LBDBCDLC |  |  |
-| PBCD | LBXBPB |  |  |
-| PBCD | LBDBPBSI |  |  |
-| PBCD | LBDBPBLC |  |  |
-| LUX | LUXSMED |  |  |
-| LUX | LUXCAPM |  |  |
-| ALQ | ALQ111 |  |  |
-| ALQ | ALQ121 |  |  |
-| ALQ | ALQ130 |  |  |
-| HEQ | HEQ010 |  |  |
-|  |  |  |  |
-|  |  |  |  |
+| Survey | Variable | Question 2017-2020 | Question 2021-2023 | Justification of Variable |
+|---------------|---------------|---------------|---------------|---------------|
+| DEMO | SDDSRVYR | Data release cycle | Data release cycle |  |
+| DEMO | RIAGENDR | Age in years of the participant at the time of screening. Individuals 80 and over are topcoded at 80 years of age. | Age in years of the participant at the time of screening. Individuals 80 and over are top-coded at 80 years of age. |  |
+| DEMO | RIDAGEYR | Gender of the participant. | Gender of the participant. |  |
+| DEMO | RIDRETH1 | Recode of reported race and Hispanic origin information | Recode of reported race and Hispanic origin information |  |
+| DEMO | DMDEDUC2 | What is the highest grade or level of school {you have/SP has} completed or the highest degree {you have/s/he has} received? | What is the highest grade or level of school {you have/SP has} completed or the highest degree {you have/s/he has} received? |  |
+| PBCD | LBXBCD |  |  |  |
+| PBCD | LBDBCDSI |  |  |  |
+| PBCD | LBDBCDLC |  |  |  |
+| PBCD | LBXBPB |  |  |  |
+| PBCD | LBDBPBSI |  |  |  |
+| PBCD | LBDBPBLC |  |  |  |
+| HEPBD | LBXHBC | Hepatitis B core antibody |  |  |
+| HEPC | LBDHCI | Hepatitis C Antibody (confirmed) |  |  |
+|  |  |  |  |  |
+| LUX | LUXSMED |  |  |  |
+| LUX | LUXCAPM |  |  |  |
+| ALQ | ALQ111 |  |  |  |
+|  |  |  |  |  |
+| ALQ | ALQ130 |  |  |  |
+|  |  |  |  |  |
+|  |  |  |  |  |
+|  |  |  |  |  |
 
 ```{r}
 
 table(nhanes_dataJA$RIAGENDR)
-clean_NHANES <- nhanes_dataJA %>% drop_na(LUXSMED, LUXCAPM,ALQ111)
-#table(clean_NHANES$RIAGENDR)
-#table(clean_NHANES$ALQ121)
-#table(clean_NHANES$ALQ130)
+clean_NHANES <- nhanes_dataJA %>% drop_na(LUXCAPM,ALQ111)
+
+#Heavy Chronic Drinking (NIAAA Definition) On data when drinking 1 for women 2 for men.
+malenondrinkers <- subset(clean_NHANES, RIAGENDR == "Male" & ALQ130 <= 2)
+femalenondrinkers <- subset(clean_NHANES, RIAGENDR == "Female" & ALQ130 <= 1)
+nondrinkers<- subset(clean_NHANES, ALQ111=="No")
+
+#all nondrinkers and no excessive drinking
+nondrinkers <- rbind(nondrinkers, femalenondrinkers, malenondrinkers)
+nondrinkers
+table(nondrinkers$LBDHCI)
+
+cohort<- subset(nondrinkers, LBDHCI=="Negative"|LBDHCI=="Negative Screening HCV Antibody")
+cohort<- subset(nondrinkers, LBXHBC=="Negative")
+table(cohort$RIAGENDR)
+
+#new CAM variable
+
 
 
 #some analysis ideas Build a model to predict? Build a cohort Sex differences anylsis. How many cases/controls (indication values vs not indicatios). Descriptive (Table 1). Unsupervised (clustering) as exploritory then do some supervised. Final predictive can we predict the level of assoiatiom RF, reg (lasso), decision tree, feature importance analysis. Maybe male vs female (two different models)

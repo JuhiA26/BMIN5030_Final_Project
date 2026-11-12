@@ -1,0 +1,183 @@
+---
+title: "Modeling for Predicting Non-Alcoholic Fatty Liver Disease differing by Gender"
+subtitle: "BMIN5030 Final Project"
+author: "Juhi Aggarwal"
+format: html
+editor: visual
+number-sections: true
+embed-resources: true
+---
+
+# Overview
+
+The main goal of this study is to build and compare different models to predict for the indication of Non-Alcoholic Fatty Liver Disease (NAFLD) and if we need to use different models based on gender. I have spoken to **Dr. Angela Aherrera** regarding the environmental factors that can impact NAFLD and **Dr. John Holmes** to determine how to use infomatics to help predict the outcomes.
+
+GitHub Repository: <https://github.com/JuhiA26/BMIN5030_Final_Project/tree/master>
+
+# Introduction
+
+Non-alcoholic fatty liver disease (NAFLD) is one of the most common chronic form of liver disease with roughly 25% of adults being diagnosed with it worldwide. The difference between NAFLD and Fatty liver disease is the lack of excessive drinking and the diagnosis of Hepatitis B or C(*1*). In this study calculated as 2 drinks per day for men and 1 for women (*2*). Starting in 2017-2018 NHANES started to use the FibroScan model 502 V2 Touch machine to estimate liver fibrosis. Liver stiffness and liver fat is quantified by controlled attenuation parameter (CAP), any score above 285 dB/m was considered as diagnosed with NAFLD (*2*, *3*). There are differences between the pathways of NAFLD between men and woman. Men having a higher provenance of NAFLD compared to women (*4*). However women with estrogen deficiency are at a higher risk for NAFLD and higher mortality rates then men of the same age. This study will include women specific variables such as early onset menstruation, menopause status(*4*). This study wants to look at the different factors (including women specific factors) to determine NAFLD.
+
+When speaking to **Dr. Angela Aherrera**, Assistant Professor of Biostatistics and Epidemiology we spoke about environmental factors and the effects of heavy metal on the human body. Dr. Aherrera works with occupational cohorts and noted that heavy metal exposure can occur though the workplace and food/water consumption. From this information I chose to include these heavy metals in the model. When speaking to **Dr. John Holmes,** Professor, Biostatistics, Epidemiology, and Informatics about this project he suggested that one can use informatics to help determine what factors are important in the development of NAFLD by creating predictive models with several different variables.
+
+```{r}
+#installing NHANES Data
+#install.packages("nhanesA")
+library(nhanesA)
+library(tidyverse)
+library(dplyr)
+
+```
+
+```{r}
+#get NAHANES DEMO variables Demo file
+demo_vars <- c("SEQN", "SDDSRVYR", "RIAGENDR", "RIDAGEYR", "RIDRETH3", "DMDEDUC2")
+#add blood metal variables PBCD_L file
+Bloodmetal_var  <- c("SEQN", "LBXBCD", "LBDBCDSI", "LBDBCDLC", "LBXBPB","LBDBPBSI","LBDBPBLC")
+
+#add liver data
+liver_var<- c("SEQN","LUXSMED","LUXCAPM")
+# add alcohol data
+Alc_var<-c("SEQN","ALQ111","ALQ121","ALQ130")
+#Hep c Antibody
+HepC_var<- c("SEQN","LBDHCI")
+#Hep B Antibody
+HepB_var<- c("SEQN","LBXHBC")
+
+#Smoking
+Smo_var<- c("SEQN","SMQ20","SMQ621")
+
+#Weight
+BMI_var<-c("SEQN","BMXBMI")
+#diabetes
+Dia_var<- c("SEQN","DIQ010")
+
+#Estrogen
+
+#Reproductive health (first period,menopause)
+
+#adding data
+
+demo <- bind_rows(
+  nhanes("P_DEMO") |> select(all_of(demo_vars)),
+  nhanes("DEMO_L") |> select(all_of(demo_vars))
+)
+
+BloodMetals <- bind_rows(
+  nhanes("P_PBCD") |> select(all_of(Bloodmetal_var)),
+  nhanes("PBCD_L") |> select(all_of(Bloodmetal_var))
+)
+
+liverdata <- bind_rows(
+  nhanes("P_LUX") |> select(all_of(liver_var)),
+  nhanes("LUX_L") |> select(all_of(liver_var))
+)
+
+AlcData <- bind_rows(
+  nhanes("P_ALQ") |> select(all_of(Alc_var)),
+  nhanes("ALQ_L") |> select(all_of(Alc_var))
+)
+
+HepCData <- bind_rows(
+  nhanes("P_HEPC") |> select(all_of(HepC_var)),
+  nhanes("HEPC_L") |> select(all_of(HepC_var))
+)
+HepBData <- bind_rows(
+  nhanes("P_HEPBD") |> select(all_of(HepB_var)),
+  nhanes("HEPBD_L") |> select(all_of(HepB_var))
+)
+
+
+nhanes_dataJA <- left_join(demo, BloodMetals, by = "SEQN")
+nhanes_dataJA <- left_join(nhanes_dataJA,liverdata, by = "SEQN")
+nhanes_dataJA <- left_join(nhanes_dataJA,HepBData, by = "SEQN")
+nhanes_dataJA <- left_join(nhanes_dataJA,AlcData, by = "SEQN")
+nhanes_dataJA <- left_join(nhanes_dataJA,HepCData, by = "SEQN")
+
+head(nhanes_dataJA)
+```
+
+| Survey | Variable | SAS Label | English Text |
+|----|----|----|----|
+| DEMO | SDDSRVYR | Data release cycle | Data release cycle |
+| DEMO | RIAGENDR | Age in years at screening | Age in years of the participant at the time of screening. Individuals 80 and over are topcoded at 80 years of age. |
+| DEMO | RIDAGEYR | Gender | Gender of the participant. |
+| DEMO | RIDRETH3 | Race/Hispanic origin w/ NH Asian | Recode of reported race and Hispanic origin information, with Non-Hispanic Asian Category |
+| DEMO | DMDEDUC2 | Education level - Adults 20+ | What is the highest grade or level of school {you have/SP has} completed or the highest degree {you have/s/he has} received? |
+| PBCD | LBXBCD | Blood cadmium (ug/L) | Blood cadmium (ug/L) |
+| PBCD | LBDBCDSI | Blood cadmium (nmol/L) | Blood cadmium (nmol/L) |
+| PBCD | LBDBCDLC | Blood cadmium comment code | Blood cadmium comment code |
+| PBCD | LBXBPB | Blood lead (ug/dL) | Blood lead (ug/dL) |
+| PBCD | LBDBPBSI | Blood lead (umol/L) | Blood lead (umol/L) |
+| PBCD | LBDBPBLC | Blood lead comment code | Blood lead comment code |
+| HEPBD | LBXHBC | Hepatitis B core antibody | Hepatitis B core antibody |
+| HEPC | LBDHCI | Hepatitis C Antibody (confirmed) | Hepatitis C Antibody (confirmed) |
+| SMQ | SMQ20 | Smoked at least 100 cigarettes in life | These next questions are about cigarette smoking and other tobacco use. {Have you/Has SP} smoked at least 100 cigarettes in {your/his/her} entire life? |
+| SMQ | SMQ621 | Cigarettes smoked in entire life | The following questions are about cigarette smoking and other tobacco use. Do not include cigars or marijuana. About how many cigarettes have you smoked in your entire life? |
+| LUX | LUXSMED |  | Median liver stiffness (E). This indicator is presented with one digit to the right of the decimal ratio (e.g. XX.X), and the units for this measure are kilopascals (kPa). |
+| LUX | LUXCAPM |  | Median controlled attenuated parameter (CAP). This indicator is presented as a whole number (e.g., XXX), and the units for this measure are decibels per meter (dB/m). |
+| ALQ | ALQ111 | Ever had a drink of any kind of alcohol | During the past 12 months, about how often did {you/SP} drink any type of alcoholic beverage? PROBE: How many days per week, per month, or per year did {you/SP} drink? |
+| ALQ | ALQ130 | Avg \# alcohol drinks/day - past 12 mos | During the past 12 months, on those days that {you/SP} drank alcoholic beverages, on the average, how many drinks did {you/he/she} have? By a drink, I mean a 12 oz. beer, a 5 oz. glass of wine, or one and a half ounces of liquor.) |
+| BMX | BMXBMI | Body Mass Index (kg/m\*\*2) | Body Mass Index (kg/m\*\*2) |
+| DIQ | DIQ010 | Doctor told you have diabetes | The next questions are about specific medical conditions. {Other than during pregnancy, {have you/has SP}/{Have you/Has SP}} ever been told by a doctor or health professional that {you have/{he/she/SP} has} diabetes or sugar diabetes? |
+| RHQ | RHQ010 | Age when first menstrual period occurred | The next series of questions are about {your/SP's} reproductive history. I will begin by asking about {your/SP's} periods or menstrual cycles. How old {were you/was SP} when {you/SP} had {your/her} first menstrual period? |
+| RHQ | RHQ060 | Age at last menstrual period | About how old {were you/was SP} when {you/SP} had {your/her} last menstrual period? |
+| TST | LBXESO | Estrone (ng/dL) | Estrone (ng/dL) |
+| TST | LBDESOSI | Estrone (pmol/L) | Estrone (pmol/L) |
+| TST | LBDESOLC | Estrone Comment Code | Estrone Comment Code |
+| TST | LBXES1 | Estrone Sulfate (pg/mL) | Estrone Sulfate (pg/mL) |
+| TST | LBDES1SI | Estrone Sulfate (pmol/L) | Estrone Sulfate (pmol/L) |
+| TST | LBDES1LC | Estrone Sulfate Comment Code | Estrone Sulfate Comment Code |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+
+```{r}
+
+table(nhanes_dataJA$RIAGENDR)
+clean_NHANES <- nhanes_dataJA %>% drop_na(LUXCAPM,ALQ111)
+
+#Heavy Chronic Drinking (NIAAA Definition) On data when drinking 1 for women 2 for men.
+malenondrinkers <- subset(clean_NHANES, RIAGENDR == "Male" & ALQ130 <= 2)
+femalenondrinkers <- subset(clean_NHANES, RIAGENDR == "Female" & ALQ130 <= 1)
+nondrinkers<- subset(clean_NHANES, ALQ111=="No")
+
+#all nondrinkers and no excessive drinking
+nondrinkers <- rbind(nondrinkers, femalenondrinkers, malenondrinkers)
+nondrinkers
+table(nondrinkers$LBDHCI)
+
+cohort<- subset(nondrinkers, LBDHCI=="Negative"|LBDHCI=="Negative Screening HCV Antibody")
+cohort<- subset(nondrinkers, LBXHBC=="Negative")
+table(cohort$RIAGENDR)
+
+#new CAM variable
+
+
+
+#some analysis ideas Build a model to predict? Build a cohort Sex differences anylsis. How many cases/controls (indication values vs not indicatios). Descriptive (Table 1). Unsupervised (clustering) as exploritory then do some supervised. Final predictive can we predict the level of assoiatiom RF, reg (lasso), decision tree, feature importance analysis. Maybe male vs female (two different models)
+
+```
+
+## Methods {#sec-methods}
+
+Describe the data used and general methodological approach used to address the problem described in the @sec-introduction. Subsequently, incorporate full R code necessary to retrieve and clean data, and perform analysis. Be sure to include a description of code so that others (including your future self) can understand what you are doing and why.
+
+## Results {#sec-results}
+
+Describe your results and include relevant tables, plots, and code/comments used to obtain them. You may refer to the @sec-methods as needed. End with a brief conclusion of your findings related to the question you set out to address. You can include references if you'd like, but this is not required.
+
+## Conclusion
+
+This the conclusion. The @sec-results can be invoked here.
+
+## References
+
+1\. J. Maurice, P. Manousou, Non-alcoholic fatty liver disease. *Clin. Med.* **18**, 245–250 (2018).
+
+2\. M. Kalligeros, S. Vassilopoulos, A. Vassilopoulos, F. Shehadeh, I. Lazaridou, E. Mylonakis, K. Promrat, J. R. Wands, Prevalence and risk factors of nonalcoholic fatty liver disease, high-risk nonalcoholic steatohepatitis, and fibrosis among lean United States adults: NHANES 2017-2020. *Ann. Gastroenterol.* **36**, 670–677 (2023).
+
+3\. P. J. Eddowes, M. Sasso, M. Allison, E. Tsochatzis, Q. M. Anstee, D. Sheridan, I. N. Guha, J. F. Cobbold, J. J. Deeks, V. Paradis, P. Bedossa, P. N. Newsome, Accuracy of FibroScan Controlled Attenuation Parameter and Liver Stiffness Measurement in Assessing Steatosis and Fibrosis in Patients With Nonalcoholic Fatty Liver Disease. *Gastroenterology* **156**, 1717–1730 (2019).
+
+4\. P. C. Eng, R. Forlano, T. Tan, P. Manousou, W. S. Dhillo, C. Izzi-Engbeaya, Non-alcoholic fatty liver disease in women – Current knowledge and emerging concepts. *JHEP Rep.* **5** (2023).
+
