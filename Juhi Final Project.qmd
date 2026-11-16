@@ -16,7 +16,7 @@ GitHub Repository: <https://github.com/JuhiA26/BMIN5030_Final_Project/tree/maste
 
 # Introduction
 
-Non-alcoholic fatty liver disease (NAFLD) is one of the most common chronic form of liver disease with roughly 25% of adults being diagnosed with it worldwide. The difference between NAFLD and Fatty liver disease is the lack of excessive drinking and the diagnosis of Hepatitis B or C(*1*). In this study calculated as 2 drinks per day for men and 1 for women (*2*). Starting in 2017-2018 NHANES started to use the FibroScan model 502 V2 Touch machine to estimate liver fibrosis. Liver stiffness and liver fat is quantified by controlled attenuation parameter (CAP), any score above 285 dB/m was considered as diagnosed with NAFLD (*2*, *3*). There are differences between the pathways of NAFLD between men and woman. Men having a higher provenance of NAFLD compared to women (*4*). However women with estrogen deficiency are at a higher risk for NAFLD and higher mortality rates then men of the same age. This study will include women specific variables such as early onset menstruation, gestational diabetes and menopause status(*4*). This study wants to look at the different factors (including women specific factors) to determine NAFLD.
+Non-alcoholic fatty liver disease (NAFLD) is one of the most common chronic form of liver disease with roughly 25% of adults being diagnosed with it worldwide. The difference between NAFLD and Fatty liver disease is the lack of excessive drinking and the diagnosis of Hepatitis B or C(*1*). In this study calculated as 2 drinks per day for men and 1 for women (*2*). Starting in 2017-2018 NHANES started to use the FibroScan model 502 V2 Touch machine to estimate liver fibrosis. Liver stiffness and liver fat is quantified by controlled attenuation parameter (CAP), any score above 285 dB/m was considered as diagnosed with NAFLD (*2*, *3*). There are differences between the pathways of NAFLD between men and woman. Men having a higher provenance of NAFLD compared to women (*4*). However women with estrogen deficiency are at a higher risk for NAFLD and higher mortality rates then men of the same age. This study will include women specific variables such as early onset menstruation, menopause status(*4*). This study wants to look at the different factors (including women specific factors) to determine NAFLD.
 
 When speaking to **Dr. Angela Aherrera**, Assistant Professor of Biostatistics and Epidemiology we spoke about environmental factors and the effects of heavy metal on the human body. Dr. Aherrera works with occupational cohorts and noted that heavy metal exposure can occur though the workplace and food/water consumption. From this information I chose to include these heavy metals in the model. When speaking to **Dr. John Holmes,** Professor, Biostatistics, Epidemiology, and Informatics about this project he suggested that one can use informatics to help determine what factors are important in the development of NAFLD by creating predictive models with several different variables.
 
@@ -31,7 +31,7 @@ library(dplyr)
 
 ```{r}
 #get NAHANES DEMO variables Demo file
-demo_vars <- c("SEQN", "SDDSRVYR", "RIAGENDR", "RIDAGEYR", "RIDRETH1", "DMDEDUC2")
+demo_vars <- c("SEQN", "SDDSRVYR", "RIAGENDR", "RIDAGEYR", "RIDRETH3", "DMDEDUC2")
 #add blood metal variables PBCD_L file
 Bloodmetal_var  <- c("SEQN", "LBXBCD", "LBDBCDSI", "LBDBCDLC", "LBXBPB","LBDBPBSI","LBDBPBLC")
 
@@ -45,11 +45,16 @@ HepC_var<- c("SEQN","LBDHCI")
 HepB_var<- c("SEQN","LBXHBC")
 
 #Smoking
-#Weight
-#diabetes
-#estrogen
-#Reproductive health (first period, gestational diabietes,menopause, HRT)
+Smo_var<- c("SEQN","SMQ020","SMQ621")
 
+#Weight
+BMI_var<-c("SEQN","BMXBMI")
+#diabetes
+Dia_var<- c("SEQN","DIQ010")
+#Estrogen
+estr_var<- c("SEQN","LBXESO", "LBDESOSI", "LBDESOLC","LBXES1", "LBDES1SI", "LBDES1LC")
+#Reproductive health (first period,menopause)
+repo_var<- c("SEQN","RHQ010",'RHQ060')
 #adding data
 
 demo <- bind_rows(
@@ -80,46 +85,78 @@ HepBData <- bind_rows(
   nhanes("P_HEPBD") |> select(all_of(HepB_var)),
   nhanes("HEPBD_L") |> select(all_of(HepB_var))
 )
+SmokeData <- bind_rows(
+  nhanes("P_SMQ") |> select(all_of(Smo_var)),
+  nhanes("SMQ_L") |> select(all_of(Smo_var))
+)
+BMIData <- bind_rows(
+  nhanes("P_BMX") |> select(all_of(BMI_var)),
+  nhanes("BMX_L") |> select(all_of(BMI_var))
+)
 
+DiaData <- bind_rows(
+  nhanes("P_DIQ") |> select(all_of(Dia_var)),
+  nhanes("DIQ_L") |> select(all_of(Dia_var))
+)
+EstrData <- bind_rows(
+  nhanes("P_TST") |> select(all_of(estr_var)),
+  nhanes("TST_L") |> select(all_of(estr_var))
+)
+RepoData <- bind_rows(
+  nhanes("P_RHQ") |> select(all_of(repo_var)),
+  nhanes("RHQ_L") |> select(all_of(repo_var))
+)
 
 nhanes_dataJA <- left_join(demo, BloodMetals, by = "SEQN")
 nhanes_dataJA <- left_join(nhanes_dataJA,liverdata, by = "SEQN")
 nhanes_dataJA <- left_join(nhanes_dataJA,HepBData, by = "SEQN")
 nhanes_dataJA <- left_join(nhanes_dataJA,AlcData, by = "SEQN")
 nhanes_dataJA <- left_join(nhanes_dataJA,HepCData, by = "SEQN")
+nhanes_dataJA <- left_join(nhanes_dataJA,SmokeData, by = "SEQN")
+nhanes_dataJA <- left_join(nhanes_dataJA,BMIData, by = "SEQN")
+nhanes_dataJA <- left_join(nhanes_dataJA,DiaData, by = "SEQN")
+nhanes_dataJA <- left_join(nhanes_dataJA,EstrData, by = "SEQN")
+nhanes_dataJA <- left_join(nhanes_dataJA,RepoData, by = "SEQN")
 
 head(nhanes_dataJA)
 ```
 
-| Survey | Variable | Question 2017-2020 | Question 2021-2023 | Justification of Variable |
-|---------------|---------------|---------------|---------------|---------------|
-| DEMO | SDDSRVYR | Data release cycle | Data release cycle |  |
-| DEMO | RIAGENDR | Age in years of the participant at the time of screening. Individuals 80 and over are topcoded at 80 years of age. | Age in years of the participant at the time of screening. Individuals 80 and over are top-coded at 80 years of age. |  |
-| DEMO | RIDAGEYR | Gender of the participant. | Gender of the participant. |  |
-| DEMO | RIDRETH1 | Recode of reported race and Hispanic origin information | Recode of reported race and Hispanic origin information |  |
-| DEMO | DMDEDUC2 | What is the highest grade or level of school {you have/SP has} completed or the highest degree {you have/s/he has} received? | What is the highest grade or level of school {you have/SP has} completed or the highest degree {you have/s/he has} received? |  |
-| PBCD | LBXBCD |  |  |  |
-| PBCD | LBDBCDSI |  |  |  |
-| PBCD | LBDBCDLC |  |  |  |
-| PBCD | LBXBPB |  |  |  |
-| PBCD | LBDBPBSI |  |  |  |
-| PBCD | LBDBPBLC |  |  |  |
-| HEPBD | LBXHBC | Hepatitis B core antibody |  |  |
-| HEPC | LBDHCI | Hepatitis C Antibody (confirmed) |  |  |
-|  |  |  |  |  |
-| LUX | LUXSMED |  |  |  |
-| LUX | LUXCAPM |  |  |  |
-| ALQ | ALQ111 |  |  |  |
-|  |  |  |  |  |
-| ALQ | ALQ130 |  |  |  |
-|  |  |  |  |  |
-|  |  |  |  |  |
-|  |  |  |  |  |
+| Survey | Variable | SAS Label | English Text |
+|----|----|----|----|
+| DEMO | SDDSRVYR | Data release cycle | Data release cycle |
+| DEMO | RIAGENDR | Age in years at screening | Age in years of the participant at the time of screening. Individuals 80 and over are topcoded at 80 years of age. |
+| DEMO | RIDAGEYR | Gender | Gender of the participant. |
+| DEMO | RIDRETH3 | Race/Hispanic origin w/ NH Asian | Recode of reported race and Hispanic origin information, with Non-Hispanic Asian Category |
+| DEMO | DMDEDUC2 | Education level - Adults 20+ | What is the highest grade or level of school {you have/SP has} completed or the highest degree {you have/s/he has} received? |
+| PBCD | LBXBCD | Blood cadmium (ug/L) | Blood cadmium (ug/L) |
+| PBCD | LBDBCDSI | Blood cadmium (nmol/L) | Blood cadmium (nmol/L) |
+| PBCD | LBDBCDLC | Blood cadmium comment code | Blood cadmium comment code |
+| PBCD | LBXBPB | Blood lead (ug/dL) | Blood lead (ug/dL) |
+| PBCD | LBDBPBSI | Blood lead (umol/L) | Blood lead (umol/L) |
+| PBCD | LBDBPBLC | Blood lead comment code | Blood lead comment code |
+| HEPBD | LBXHBC | Hepatitis B core antibody | Hepatitis B core antibody |
+| HEPC | LBDHCI | Hepatitis C Antibody (confirmed) | Hepatitis C Antibody (confirmed) |
+| SMQ | SMQ020 | Smoked at least 100 cigarettes in life | These next questions are about cigarette smoking and other tobacco use. {Have you/Has SP} smoked at least 100 cigarettes in {your/his/her} entire life? |
+| SMQ | SMQ621 | Cigarettes smoked in entire life | The following questions are about cigarette smoking and other tobacco use. Do not include cigars or marijuana. About how many cigarettes have you smoked in your entire life? |
+| LUX | LUXSMED |  | Median liver stiffness (E). This indicator is presented with one digit to the right of the decimal ratio (e.g. XX.X), and the units for this measure are kilopascals (kPa). |
+| LUX | LUXCAPM |  | Median controlled attenuated parameter (CAP). This indicator is presented as a whole number (e.g., XXX), and the units for this measure are decibels per meter (dB/m). |
+| ALQ | ALQ111 | Ever had a drink of any kind of alcohol | During the past 12 months, about how often did {you/SP} drink any type of alcoholic beverage? PROBE: How many days per week, per month, or per year did {you/SP} drink? |
+| ALQ | ALQ130 | Avg \# alcohol drinks/day - past 12 mos | During the past 12 months, on those days that {you/SP} drank alcoholic beverages, on the average, how many drinks did {you/he/she} have? By a drink, I mean a 12 oz. beer, a 5 oz. glass of wine, or one and a half ounces of liquor.) |
+| BMX | BMXBMI | Body Mass Index (kg/m\*\*2) | Body Mass Index (kg/m\*\*2) |
+| DIQ | DIQ010 | Doctor told you have diabetes | The next questions are about specific medical conditions. {Other than during pregnancy, {have you/has SP}/{Have you/Has SP}} ever been told by a doctor or health professional that {you have/{he/she/SP} has} diabetes or sugar diabetes? |
+| RHQ | RHQ010 | Age when first menstrual period occurred | The next series of questions are about {your/SP's} reproductive history. I will begin by asking about {your/SP's} periods or menstrual cycles. How old {were you/was SP} when {you/SP} had {your/her} first menstrual period? |
+| RHQ | RHQ060 | Age at last menstrual period | About how old {were you/was SP} when {you/SP} had {your/her} last menstrual period? |
+| TST | LBXESO | Estrone (ng/dL) | Estrone (ng/dL) |
+| TST | LBDESOSI | Estrone (pmol/L) | Estrone (pmol/L) |
+| TST | LBDESOLC | Estrone Comment Code | Estrone Comment Code |
+| TST | LBXES1 | Estrone Sulfate (pg/mL) | Estrone Sulfate (pg/mL) |
+| TST | LBDES1SI | Estrone Sulfate (pmol/L) | Estrone Sulfate (pmol/L) |
+| TST | LBDES1LC | Estrone Sulfate Comment Code | Estrone Sulfate Comment Code |
 
 ```{r}
 
 table(nhanes_dataJA$RIAGENDR)
-clean_NHANES <- nhanes_dataJA %>% drop_na(LUXCAPM,ALQ111)
+clean_NHANES <- nhanes_dataJA %>% drop_na(LUXCAPM,ALQ111,LBDHCI,LBXHBC)
 
 #Heavy Chronic Drinking (NIAAA Definition) On data when drinking 1 for women 2 for men.
 malenondrinkers <- subset(clean_NHANES, RIAGENDR == "Male" & ALQ130 <= 2)
@@ -136,8 +173,8 @@ cohort<- subset(nondrinkers, LBXHBC=="Negative")
 table(cohort$RIAGENDR)
 
 #new CAM variable
-
-
+cohort$NAFLDind<-if_else(cohort$LUXCAPM>=285,1,0)
+table(cohort$NAFLDind)
 
 #some analysis ideas Build a model to predict? Build a cohort Sex differences anylsis. How many cases/controls (indication values vs not indicatios). Descriptive (Table 1). Unsupervised (clustering) as exploritory then do some supervised. Final predictive can we predict the level of assoiatiom RF, reg (lasso), decision tree, feature importance analysis. Maybe male vs female (two different models)
 
