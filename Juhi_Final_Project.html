@@ -2243,6 +2243,7 @@ vertical-align: -.125em;
 <p>When speaking to <strong>Dr. Angela Aherrera</strong>, Assistant Professor of Biostatistics and Epidemiology we spoke about environmental factors and the effects of heavy metal on the human body. Dr. Aherrera works with occupational cohorts and noted that heavy metal exposure can occur though the workplace and food/water consumption. From this information I chose to include these heavy metals in the model. When speaking to <strong>Dr. John Holmes,</strong> Professor, Biostatistics, Epidemiology, and Informatics about this project he suggested that one can use informatics to help determine what factors are important in the development of NAFLD by creating predictive models with several different variables.</p>
 <section id="sec-methods" class="level2" data-number="2.1">
 <h2 data-number="2.1" class="anchored" data-anchor-id="sec-methods"><span class="header-section-number">2.1</span> Methods</h2>
+<p>In this study data will be pulled from the National Health and Nutrition Examination Survey (NHANES) between 2017 and 2023. This data is specifically from the continuous surveys from 2017 to March 2020, and August 2021-2023. The relevant variables (Table 1) will be added to our data set, and a cohort will be constructed. In this study we will use the cut off of 285 dB/m for CAP to be our indication of NAFLD. A new variable will be constructed to show this cut off. Other variables created was if one was experiencing menopause in our study those who were women, were above the age of 30, and have not experienced a period within a year were considered to be on menopause.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#installing NHANES Data</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#install.packages(&quot;nhanesA&quot;)</span></span>
@@ -2289,69 +2290,81 @@ vertical-align: -.125em;
 <span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>estr_var<span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;SEQN&quot;</span>,<span class="st">&quot;LBXESO&quot;</span>, <span class="st">&quot;LBDESOSI&quot;</span>, <span class="st">&quot;LBDESOLC&quot;</span>,<span class="st">&quot;LBXES1&quot;</span>, <span class="st">&quot;LBDES1SI&quot;</span>, <span class="st">&quot;LBDES1LC&quot;</span>)</span>
 <span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="co">#Reproductive health (first period,menopause)</span></span>
 <span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>repo_var<span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;SEQN&quot;</span>,<span class="st">&quot;RHQ010&quot;</span>,<span class="st">&#39;RHQ060&#39;</span>)</span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="co">#adding data</span></span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>demo <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;P_DEMO&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(demo_vars)),</span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;DEMO_L&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(demo_vars))</span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>BloodMetals <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;P_PBCD&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(Bloodmetal_var)),</span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;PBCD_L&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(Bloodmetal_var))</span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>liverdata <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
-<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;P_LUX&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(liver_var)),</span>
-<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;LUX_L&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(liver_var))</span>
-<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>AlcData <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
-<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;P_ALQ&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(Alc_var)),</span>
-<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;ALQ_L&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(Alc_var))</span>
-<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>HepCData <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
-<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;P_HEPC&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(HepC_var)),</span>
-<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;HEPC_L&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(HepC_var))</span>
-<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>HepBData <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
-<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;P_HEPBD&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(HepB_var)),</span>
-<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;HEPBD_L&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(HepB_var))</span>
-<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>SmokeData <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
-<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;P_SMQ&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(Smo_var)),</span>
-<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;SMQ_L&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(Smo_var))</span>
-<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>BMIData <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
-<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;P_BMX&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(BMI_var)),</span>
-<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;BMX_L&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(BMI_var))</span>
-<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>DiaData <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
-<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;P_DIQ&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(Dia_var)),</span>
-<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;DIQ_L&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(Dia_var))</span>
-<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a>EstrData <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
-<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;P_TST&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(estr_var)),</span>
-<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;TST_L&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(estr_var))</span>
-<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a>RepoData <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
-<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;P_RHQ&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(repo_var)),</span>
-<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;RHQ_L&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(repo_var))</span>
-<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a>nhanes_dataJA <span class="ot">&lt;-</span> <span class="fu">left_join</span>(demo, BloodMetals, <span class="at">by =</span> <span class="st">&quot;SEQN&quot;</span>)</span>
-<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a>nhanes_dataJA <span class="ot">&lt;-</span> <span class="fu">left_join</span>(nhanes_dataJA,liverdata, <span class="at">by =</span> <span class="st">&quot;SEQN&quot;</span>)</span>
-<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a>nhanes_dataJA <span class="ot">&lt;-</span> <span class="fu">left_join</span>(nhanes_dataJA,HepBData, <span class="at">by =</span> <span class="st">&quot;SEQN&quot;</span>)</span>
-<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a>nhanes_dataJA <span class="ot">&lt;-</span> <span class="fu">left_join</span>(nhanes_dataJA,AlcData, <span class="at">by =</span> <span class="st">&quot;SEQN&quot;</span>)</span>
-<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a>nhanes_dataJA <span class="ot">&lt;-</span> <span class="fu">left_join</span>(nhanes_dataJA,HepCData, <span class="at">by =</span> <span class="st">&quot;SEQN&quot;</span>)</span>
-<span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a>nhanes_dataJA <span class="ot">&lt;-</span> <span class="fu">left_join</span>(nhanes_dataJA,SmokeData, <span class="at">by =</span> <span class="st">&quot;SEQN&quot;</span>)</span>
-<span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a>nhanes_dataJA <span class="ot">&lt;-</span> <span class="fu">left_join</span>(nhanes_dataJA,BMIData, <span class="at">by =</span> <span class="st">&quot;SEQN&quot;</span>)</span>
-<span id="cb4-85"><a href="#cb4-85" aria-hidden="true" tabindex="-1"></a>nhanes_dataJA <span class="ot">&lt;-</span> <span class="fu">left_join</span>(nhanes_dataJA,DiaData, <span class="at">by =</span> <span class="st">&quot;SEQN&quot;</span>)</span>
-<span id="cb4-86"><a href="#cb4-86" aria-hidden="true" tabindex="-1"></a>nhanes_dataJA <span class="ot">&lt;-</span> <span class="fu">left_join</span>(nhanes_dataJA,EstrData, <span class="at">by =</span> <span class="st">&quot;SEQN&quot;</span>)</span>
-<span id="cb4-87"><a href="#cb4-87" aria-hidden="true" tabindex="-1"></a>nhanes_dataJA <span class="ot">&lt;-</span> <span class="fu">left_join</span>(nhanes_dataJA,RepoData, <span class="at">by =</span> <span class="st">&quot;SEQN&quot;</span>)</span>
-<span id="cb4-88"><a href="#cb4-88" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(nhanes_dataJA)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="co">#Weights</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>weights20172020<span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;SEQN&quot;</span>,<span class="st">&quot;WTINTPRP&quot;</span>,<span class="st">&quot;WTMECPRP&quot;</span>)</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>weights20212023<span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;SEQN&quot;</span>,<span class="st">&quot;WTINT2YR&quot;</span>,<span class="st">&quot;WTMEC2YR&quot;</span>)</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="co">#adding data</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>demo <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;P_DEMO&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(demo_vars)),</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;DEMO_L&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(demo_vars))</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>weights <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;P_DEMO&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(weights20172020)),</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;DEMO_L&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(weights20212023))</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>demoW <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;P_DEMO&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(demo_vars)),</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;DEMO_L&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(demo_vars))</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>BloodMetals <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;P_PBCD&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(Bloodmetal_var)),</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;PBCD_L&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(Bloodmetal_var))</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>liverdata <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;P_LUX&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(liver_var)),</span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;LUX_L&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(liver_var))</span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>AlcData <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;P_ALQ&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(Alc_var)),</span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;ALQ_L&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(Alc_var))</span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>HepCData <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;P_HEPC&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(HepC_var)),</span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;HEPC_L&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(HepC_var))</span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>HepBData <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;P_HEPBD&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(HepB_var)),</span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;HEPBD_L&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(HepB_var))</span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>SmokeData <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;P_SMQ&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(Smo_var)),</span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;SMQ_L&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(Smo_var))</span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a>BMIData <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;P_BMX&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(BMI_var)),</span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;BMX_L&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(BMI_var))</span>
+<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a>DiaData <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;P_DIQ&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(Dia_var)),</span>
+<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;DIQ_L&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(Dia_var))</span>
+<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a>EstrData <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;P_TST&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(estr_var)),</span>
+<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;TST_L&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(estr_var))</span>
+<span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a>RepoData <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb4-85"><a href="#cb4-85" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;P_RHQ&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(repo_var)),</span>
+<span id="cb4-86"><a href="#cb4-86" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nhanes</span>(<span class="st">&quot;RHQ_L&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">all_of</span>(repo_var))</span>
+<span id="cb4-87"><a href="#cb4-87" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-88"><a href="#cb4-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-89"><a href="#cb4-89" aria-hidden="true" tabindex="-1"></a>nhanes_dataJA <span class="ot">&lt;-</span> <span class="fu">left_join</span>(demo, BloodMetals, <span class="at">by =</span> <span class="st">&quot;SEQN&quot;</span>)</span>
+<span id="cb4-90"><a href="#cb4-90" aria-hidden="true" tabindex="-1"></a>nhanes_dataJA <span class="ot">&lt;-</span> <span class="fu">left_join</span>(nhanes_dataJA,weights, <span class="at">by =</span> <span class="st">&quot;SEQN&quot;</span>)</span>
+<span id="cb4-91"><a href="#cb4-91" aria-hidden="true" tabindex="-1"></a>nhanes_dataJA <span class="ot">&lt;-</span> <span class="fu">left_join</span>(nhanes_dataJA,liverdata, <span class="at">by =</span> <span class="st">&quot;SEQN&quot;</span>)</span>
+<span id="cb4-92"><a href="#cb4-92" aria-hidden="true" tabindex="-1"></a>nhanes_dataJA <span class="ot">&lt;-</span> <span class="fu">left_join</span>(nhanes_dataJA,HepBData, <span class="at">by =</span> <span class="st">&quot;SEQN&quot;</span>)</span>
+<span id="cb4-93"><a href="#cb4-93" aria-hidden="true" tabindex="-1"></a>nhanes_dataJA <span class="ot">&lt;-</span> <span class="fu">left_join</span>(nhanes_dataJA,AlcData, <span class="at">by =</span> <span class="st">&quot;SEQN&quot;</span>)</span>
+<span id="cb4-94"><a href="#cb4-94" aria-hidden="true" tabindex="-1"></a>nhanes_dataJA <span class="ot">&lt;-</span> <span class="fu">left_join</span>(nhanes_dataJA,HepCData, <span class="at">by =</span> <span class="st">&quot;SEQN&quot;</span>)</span>
+<span id="cb4-95"><a href="#cb4-95" aria-hidden="true" tabindex="-1"></a>nhanes_dataJA <span class="ot">&lt;-</span> <span class="fu">left_join</span>(nhanes_dataJA,SmokeData, <span class="at">by =</span> <span class="st">&quot;SEQN&quot;</span>)</span>
+<span id="cb4-96"><a href="#cb4-96" aria-hidden="true" tabindex="-1"></a>nhanes_dataJA <span class="ot">&lt;-</span> <span class="fu">left_join</span>(nhanes_dataJA,BMIData, <span class="at">by =</span> <span class="st">&quot;SEQN&quot;</span>)</span>
+<span id="cb4-97"><a href="#cb4-97" aria-hidden="true" tabindex="-1"></a>nhanes_dataJA <span class="ot">&lt;-</span> <span class="fu">left_join</span>(nhanes_dataJA,DiaData, <span class="at">by =</span> <span class="st">&quot;SEQN&quot;</span>)</span>
+<span id="cb4-98"><a href="#cb4-98" aria-hidden="true" tabindex="-1"></a>nhanes_dataJA <span class="ot">&lt;-</span> <span class="fu">left_join</span>(nhanes_dataJA,EstrData, <span class="at">by =</span> <span class="st">&quot;SEQN&quot;</span>)</span>
+<span id="cb4-99"><a href="#cb4-99" aria-hidden="true" tabindex="-1"></a>nhanes_dataJA <span class="ot">&lt;-</span> <span class="fu">left_join</span>(nhanes_dataJA,RepoData, <span class="at">by =</span> <span class="st">&quot;SEQN&quot;</span>)</span>
+<span id="cb4-100"><a href="#cb4-100" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(nhanes_dataJA)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    SEQN                        SDDSRVYR RIAGENDR RIDAGEYR           RIDRETH3
 1 109263 NHANES 2017-2020 public release     Male        2 Non-Hispanic Asian
@@ -2367,34 +2380,41 @@ vertical-align: -.125em;
 4 College graduate or above  0.223    1.984 At or above the detection limit
 5 Some college or AA degree     NA       NA                            &lt;NA&gt;
 6                      &lt;NA&gt;     NA       NA                            &lt;NA&gt;
-  LBXBPB LBDBPBSI                        LBDBPBLC LUXSMED LUXCAPM   LBXHBC
-1     NA       NA                            &lt;NA&gt;      NA      NA     &lt;NA&gt;
-2  0.360    0.017 At or above the detection limit      NA      NA Negative
-3     NA       NA                            &lt;NA&gt;      NA      NA     &lt;NA&gt;
-4  1.699    0.082 At or above the detection limit     6.4     277 Negative
-5     NA       NA                            &lt;NA&gt;      NA      NA     &lt;NA&gt;
-6     NA       NA                            &lt;NA&gt;      NA      NA     &lt;NA&gt;
-  ALQ111                        ALQ121 ALQ130                          LBDHCI
-1   &lt;NA&gt;                          &lt;NA&gt;     NA                            &lt;NA&gt;
-2   &lt;NA&gt;                          &lt;NA&gt;     NA Negative Screening HCV Antibody
-3   &lt;NA&gt;                          &lt;NA&gt;     NA                            &lt;NA&gt;
-4    Yes 1 to 2 times in the last year      1 Negative Screening HCV Antibody
-5   &lt;NA&gt;                          &lt;NA&gt;     NA                            &lt;NA&gt;
-6   &lt;NA&gt;                          &lt;NA&gt;     NA                            &lt;NA&gt;
-  SMQ020                               SMQ621 BMXBMI DIQ010 LBXESO LBDESOSI
-1   &lt;NA&gt;                                 &lt;NA&gt;     NA     No     NA       NA
-2   &lt;NA&gt; I have never smoked, not even a puff   17.6     No     NA       NA
-3   &lt;NA&gt;                                 &lt;NA&gt;   15.0     No     NA       NA
-4     No                                 &lt;NA&gt;   37.8     No   4.53      168
-5     No                                 &lt;NA&gt;     NA     No     NA       NA
-6     No                                 &lt;NA&gt;     NA     No     NA       NA
-                         LBDESOLC LBXES1 LBDES1SI LBDES1LC RHQ010 RHQ060
-1                            &lt;NA&gt;     NA       NA     &lt;NA&gt;     NA     NA
-2                            &lt;NA&gt;     NA       NA     &lt;NA&gt;     12     NA
-3                            &lt;NA&gt;     NA       NA     &lt;NA&gt;     NA     NA
-4 At or above the detection limit     NA       NA     &lt;NA&gt;     13     NA
-5                            &lt;NA&gt;     NA       NA     &lt;NA&gt;     NA     NA
-6                            &lt;NA&gt;     NA       NA     &lt;NA&gt;     NA     NA</code></pre>
+  LBXBPB LBDBPBSI                        LBDBPBLC  WTINTPRP  WTMECPRP WTINT2YR
+1     NA       NA                            &lt;NA&gt;  7891.762  8951.816       NA
+2  0.360    0.017 At or above the detection limit 11689.747 12271.157       NA
+3     NA       NA                            &lt;NA&gt; 16273.826 16658.764       NA
+4  1.699    0.082 At or above the detection limit  7825.646  8154.968       NA
+5     NA       NA                            &lt;NA&gt; 26379.992     0.000       NA
+6     NA       NA                            &lt;NA&gt; 19639.221     0.000       NA
+  WTMEC2YR LUXSMED LUXCAPM   LBXHBC ALQ111                        ALQ121 ALQ130
+1       NA      NA      NA     &lt;NA&gt;   &lt;NA&gt;                          &lt;NA&gt;     NA
+2       NA      NA      NA Negative   &lt;NA&gt;                          &lt;NA&gt;     NA
+3       NA      NA      NA     &lt;NA&gt;   &lt;NA&gt;                          &lt;NA&gt;     NA
+4       NA     6.4     277 Negative    Yes 1 to 2 times in the last year      1
+5       NA      NA      NA     &lt;NA&gt;   &lt;NA&gt;                          &lt;NA&gt;     NA
+6       NA      NA      NA     &lt;NA&gt;   &lt;NA&gt;                          &lt;NA&gt;     NA
+                           LBDHCI SMQ020                               SMQ621
+1                            &lt;NA&gt;   &lt;NA&gt;                                 &lt;NA&gt;
+2 Negative Screening HCV Antibody   &lt;NA&gt; I have never smoked, not even a puff
+3                            &lt;NA&gt;   &lt;NA&gt;                                 &lt;NA&gt;
+4 Negative Screening HCV Antibody     No                                 &lt;NA&gt;
+5                            &lt;NA&gt;     No                                 &lt;NA&gt;
+6                            &lt;NA&gt;     No                                 &lt;NA&gt;
+  BMXBMI DIQ010 LBXESO LBDESOSI                        LBDESOLC LBXES1 LBDES1SI
+1     NA     No     NA       NA                            &lt;NA&gt;     NA       NA
+2   17.6     No     NA       NA                            &lt;NA&gt;     NA       NA
+3   15.0     No     NA       NA                            &lt;NA&gt;     NA       NA
+4   37.8     No   4.53      168 At or above the detection limit     NA       NA
+5     NA     No     NA       NA                            &lt;NA&gt;     NA       NA
+6     NA     No     NA       NA                            &lt;NA&gt;     NA       NA
+  LBDES1LC RHQ010 RHQ060
+1     &lt;NA&gt;     NA     NA
+2     &lt;NA&gt;     12     NA
+3     &lt;NA&gt;     NA     NA
+4     &lt;NA&gt;     13     NA
+5     &lt;NA&gt;     NA     NA
+6     &lt;NA&gt;     NA     NA</code></pre>
 </div>
 </div>
 <p>Table 1: All variables uploaded from NHANES Data</p>
@@ -2592,7 +2612,7 @@ vertical-align: -.125em;
 </table>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#clean NHANES data </span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>clean_NHANES <span class="ot">&lt;-</span> nhanes_dataJA <span class="sc">%&gt;%</span> <span class="fu">drop_na</span>(LUXCAPM,ALQ111,LBDHCI,LBXHBC)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>clean_NHANES <span class="ot">&lt;-</span> nhanes_dataJA <span class="sc">|&gt;</span> <span class="fu">drop_na</span>(LUXCAPM,ALQ111,LBDHCI,LBXHBC)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">#Heavy Chronic Drinking (NIAAA Definition) On data when drinking 1 for women 2 for men.</span></span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>malenondrinkers <span class="ot">&lt;-</span> <span class="fu">subset</span>(clean_NHANES, RIAGENDR <span class="sc">==</span> <span class="st">&quot;Male&quot;</span> <span class="sc">&amp;</span> ALQ130 <span class="sc">&lt;=</span> <span class="dv">2</span>)</span>
@@ -2609,7 +2629,7 @@ vertical-align: -.125em;
 Negative Screening HCV Antibody                Positive HCV RNA 
                            5451                              28 </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#add menopause data only counting menopause data among woman over 30.</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#add menopause data only counting menopause data among woman over </span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>Menopausestatus <span class="ot">&lt;-</span> <span class="fu">subset</span>(clean_NHANES, RIAGENDR <span class="sc">==</span> <span class="st">&quot;Female&quot;</span><span class="sc">&amp;</span> RIDAGEYR<span class="sc">&gt;=</span><span class="dv">30</span>)</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>Menopausestatus<span class="ot">&lt;-</span> <span class="fu">subset</span>(Menopausestatus, RHQ060<span class="sc">&lt;=</span> <span class="dv">100</span><span class="sc">|</span><span class="fu">is.na</span>(RHQ060)) </span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>Menopausestatus<span class="sc">$</span>Menopause<span class="ot">=</span> <span class="fu">if_else</span>(Menopausestatus<span class="sc">$</span>RIDAGEYR<span class="sc">-</span>Menopausestatus<span class="sc">$</span>RHQ060<span class="sc">&gt;=</span><span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>)</span>
@@ -2627,38 +2647,47 @@ Negative Screening HCV Antibody                Positive HCV RNA
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co">#new CAM variable</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>cohort<span class="sc">$</span>NAFLDind<span class="ot">&lt;-</span><span class="fu">if_else</span>(cohort<span class="sc">$</span>LUXCAPM<span class="sc">&gt;=</span><span class="dv">285</span>,<span class="dv">1</span>,<span class="dv">0</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>cohort<span class="sc">$</span>NAFLDind<span class="ot">&lt;-</span><span class="fu">if_else</span>(cohort<span class="sc">$</span>LUXCAPM<span class="sc">&gt;=</span><span class="dv">285</span>,<span class="st">&quot;Indication of NAFLD&quot;</span>,<span class="st">&quot;No Indication of NAFLD&quot;</span>)</span>
 <span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(cohort<span class="sc">$</span>NAFLDind)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
-   0    1 
-3307 1861 </code></pre>
+   Indication of NAFLD No Indication of NAFLD 
+                  1861                   3307 </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">#new variable if in menopause.</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">#rename variables</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>cohortrenamed<span class="ot">&lt;-</span>cohort<span class="sc">|&gt;</span><span class="fu">rename</span>(<span class="at">id =</span> SEQN, <span class="at">surveyyear=</span>SDDSRVYR, <span class="at">gender =</span> RIAGENDR, <span class="at">age =</span> RIDAGEYR,<span class="at">race =</span> RIDRETH3, <span class="at">education =</span> DMDEDUC2,</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">BloodCadmium_ugL =</span> LBXBCD, <span class="at">BloodLead_ugL=</span>LBXBPB, </span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">Smoke=</span>SMQ020, <span class="at">BMI=</span>BMXBMI, <span class="at">Diabetes=</span>DIQ010, <span class="at">estronelevel_ngdL=</span>LBXESO, <span class="at">estronesulfate_ngdL=</span>LBXES1, <span class="at">firstmenstration=</span>RHQ010</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>       )</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co">#some analysis ideas Build a model to predict? Build a cohort Sex differences anylsis. How many cases/controls (indication values vs not indicatios). Descriptive (Table 1). Unsupervised (clustering) as exploritory then do some supervised. Final predictive can we predict the level of assoiatiom RF, reg (lasso), decision tree, feature importance analysis. Maybe male vs female (two different models)</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="fu">tbl_summary</span> (cohortrenamed,<span class="at">by=</span>NAFLDind,<span class="at">include=</span><span class="fu">c</span>(gender,race,education,BloodCadmium_ugL,BloodLead_ugL,Smoke,BMI,Diabetes,estronelevel_ngdL,estronesulfate_ngdL,firstmenstration,Menopause))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">#rename variables</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>cohortrenamed<span class="ot">&lt;-</span>cohort<span class="sc">|&gt;</span><span class="fu">rename</span>(<span class="at">id =</span> SEQN, <span class="at">surveyyear=</span>SDDSRVYR, <span class="at">gender =</span> RIAGENDR, <span class="at">age =</span> RIDAGEYR,<span class="at">race =</span> RIDRETH3, <span class="at">Education =</span> DMDEDUC2,</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">BloodCadmium_ugL =</span> LBXBCD, <span class="at">BloodLead_ugL=</span>LBXBPB, </span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">Smoke=</span>SMQ020, <span class="at">BMI=</span>BMXBMI, <span class="at">Diabetes=</span>DIQ010, <span class="at">estronelevel_ngdL=</span>LBXESO, <span class="at">estronesulfate_ngdL=</span>LBXES1, <span class="at">firstmenstration=</span>RHQ010</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>       )</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co">#making I dont knows into Unknowns.</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>cohortrenamed<span class="ot">&lt;-</span>cohortrenamed<span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">Education=</span><span class="fu">if_else</span>(Education <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;Don&#39;t know&quot;</span>, <span class="st">&quot;Don&#39;t Know&quot;</span>, <span class="st">&quot;Refused&quot;</span>), <span class="cn">NA</span>,Education))</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>cohortrenamed<span class="ot">&lt;-</span>cohortrenamed<span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">Smoke=</span><span class="fu">if_else</span>(Smoke <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;Don&#39;t know&quot;</span>, <span class="st">&quot;Refused&quot;</span>), <span class="cn">NA</span>,Smoke))</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>cohortrenamed<span class="ot">&lt;-</span>cohortrenamed<span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">Diabetes=</span><span class="fu">if_else</span>(Diabetes <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;Don&#39;t know&quot;</span>), <span class="cn">NA</span>,Diabetes))</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co">#some analysis ideas Build a model to predict? Build a cohort Sex differences anylsis. How many cases/controls (indication values vs not indicatios). Descriptive (Table 1). Unsupervised (clustering) as exploritory then do some supervised. Final predictive can we predict the level of assoiatiom RF, reg (lasso), decision tree, feature importance analysis. Maybe male vs female (two different models)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="sec-results" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="sec-results"><span class="header-section-number">2.2</span> Results</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tbl_summary</span> (cohortrenamed,<span class="at">by=</span>NAFLDind,<span class="at">include=</span><span class="fu">c</span>(gender,race,Education,BloodCadmium_ugL,BloodLead_ugL,Smoke,BMI,Diabetes,estronelevel_ngdL,estronesulfate_ngdL,firstmenstration,Menopause))<span class="sc">|&gt;</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_overall</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="fcqcquyyuv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#fcqcquyyuv table {
+<div id="dtlfgpuxty" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#dtlfgpuxty table {
 font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 -webkit-font-smoothing: antialiased;
 -moz-osx-font-smoothing: grayscale;
 }
-#fcqcquyyuv thead, #fcqcquyyuv tbody, #fcqcquyyuv tfoot, #fcqcquyyuv tr, #fcqcquyyuv td, #fcqcquyyuv th {
+#dtlfgpuxty thead, #dtlfgpuxty tbody, #dtlfgpuxty tfoot, #dtlfgpuxty tr, #dtlfgpuxty td, #dtlfgpuxty th {
 border-style: none;
 }
-#fcqcquyyuv p {
+#dtlfgpuxty p {
 margin: 0;
 padding: 0;
 }
-#fcqcquyyuv .gt_table {
+#dtlfgpuxty .gt_table {
 display: table;
 border-collapse: collapse;
 line-height: normal;
@@ -2683,11 +2712,11 @@ border-left-style: none;
 border-left-width: 2px;
 border-left-color: #D3D3D3;
 }
-#fcqcquyyuv .gt_caption {
+#dtlfgpuxty .gt_caption {
 padding-top: 4px;
 padding-bottom: 4px;
 }
-#fcqcquyyuv .gt_title {
+#dtlfgpuxty .gt_title {
 color: #333333;
 font-size: 125%;
 font-weight: initial;
@@ -2698,7 +2727,7 @@ padding-right: 5px;
 border-bottom-color: #FFFFFF;
 border-bottom-width: 0;
 }
-#fcqcquyyuv .gt_subtitle {
+#dtlfgpuxty .gt_subtitle {
 color: #333333;
 font-size: 85%;
 font-weight: initial;
@@ -2709,7 +2738,7 @@ padding-right: 5px;
 border-top-color: #FFFFFF;
 border-top-width: 0;
 }
-#fcqcquyyuv .gt_heading {
+#dtlfgpuxty .gt_heading {
 background-color: #FFFFFF;
 text-align: center;
 border-bottom-color: #FFFFFF;
@@ -2720,12 +2749,12 @@ border-right-style: none;
 border-right-width: 1px;
 border-right-color: #D3D3D3;
 }
-#fcqcquyyuv .gt_bottom_border {
+#dtlfgpuxty .gt_bottom_border {
 border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 }
-#fcqcquyyuv .gt_col_headings {
+#dtlfgpuxty .gt_col_headings {
 border-top-style: solid;
 border-top-width: 2px;
 border-top-color: #D3D3D3;
@@ -2739,7 +2768,7 @@ border-right-style: none;
 border-right-width: 1px;
 border-right-color: #D3D3D3;
 }
-#fcqcquyyuv .gt_col_heading {
+#dtlfgpuxty .gt_col_heading {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -2758,7 +2787,7 @@ padding-left: 5px;
 padding-right: 5px;
 overflow-x: hidden;
 }
-#fcqcquyyuv .gt_column_spanner_outer {
+#dtlfgpuxty .gt_column_spanner_outer {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -2769,13 +2798,13 @@ padding-bottom: 0;
 padding-left: 4px;
 padding-right: 4px;
 }
-#fcqcquyyuv .gt_column_spanner_outer:first-child {
+#dtlfgpuxty .gt_column_spanner_outer:first-child {
 padding-left: 0;
 }
-#fcqcquyyuv .gt_column_spanner_outer:last-child {
+#dtlfgpuxty .gt_column_spanner_outer:last-child {
 padding-right: 0;
 }
-#fcqcquyyuv .gt_column_spanner {
+#dtlfgpuxty .gt_column_spanner {
 border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
@@ -2786,10 +2815,10 @@ overflow-x: hidden;
 display: inline-block;
 width: 100%;
 }
-#fcqcquyyuv .gt_spanner_row {
+#dtlfgpuxty .gt_spanner_row {
 border-bottom-style: hidden;
 }
-#fcqcquyyuv .gt_group_heading {
+#dtlfgpuxty .gt_group_heading {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -2814,7 +2843,7 @@ border-right-color: #D3D3D3;
 vertical-align: middle;
 text-align: left;
 }
-#fcqcquyyuv .gt_empty_group_heading {
+#dtlfgpuxty .gt_empty_group_heading {
 padding: 0.5px;
 color: #333333;
 background-color: #FFFFFF;
@@ -2828,13 +2857,13 @@ border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 vertical-align: middle;
 }
-#fcqcquyyuv .gt_from_md > :first-child {
+#dtlfgpuxty .gt_from_md > :first-child {
 margin-top: 0;
 }
-#fcqcquyyuv .gt_from_md > :last-child {
+#dtlfgpuxty .gt_from_md > :last-child {
 margin-bottom: 0;
 }
-#fcqcquyyuv .gt_row {
+#dtlfgpuxty .gt_row {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -2852,7 +2881,7 @@ border-right-color: #D3D3D3;
 vertical-align: middle;
 overflow-x: hidden;
 }
-#fcqcquyyuv .gt_stub {
+#dtlfgpuxty .gt_stub {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -2864,7 +2893,7 @@ border-right-color: #D3D3D3;
 padding-left: 5px;
 padding-right: 5px;
 }
-#fcqcquyyuv .gt_stub_row_group {
+#dtlfgpuxty .gt_stub_row_group {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -2877,13 +2906,13 @@ padding-left: 5px;
 padding-right: 5px;
 vertical-align: top;
 }
-#fcqcquyyuv .gt_row_group_first td {
+#dtlfgpuxty .gt_row_group_first td {
 border-top-width: 2px;
 }
-#fcqcquyyuv .gt_row_group_first th {
+#dtlfgpuxty .gt_row_group_first th {
 border-top-width: 2px;
 }
-#fcqcquyyuv .gt_summary_row {
+#dtlfgpuxty .gt_summary_row {
 color: #333333;
 background-color: #FFFFFF;
 text-transform: inherit;
@@ -2892,14 +2921,14 @@ padding-bottom: 8px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#fcqcquyyuv .gt_first_summary_row {
+#dtlfgpuxty .gt_first_summary_row {
 border-top-style: solid;
 border-top-color: #D3D3D3;
 }
-#fcqcquyyuv .gt_first_summary_row.thick {
+#dtlfgpuxty .gt_first_summary_row.thick {
 border-top-width: 2px;
 }
-#fcqcquyyuv .gt_last_summary_row {
+#dtlfgpuxty .gt_last_summary_row {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -2908,7 +2937,7 @@ border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 }
-#fcqcquyyuv .gt_grand_summary_row {
+#dtlfgpuxty .gt_grand_summary_row {
 color: #333333;
 background-color: #FFFFFF;
 text-transform: inherit;
@@ -2917,7 +2946,7 @@ padding-bottom: 8px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#fcqcquyyuv .gt_first_grand_summary_row {
+#dtlfgpuxty .gt_first_grand_summary_row {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -2926,7 +2955,7 @@ border-top-style: double;
 border-top-width: 6px;
 border-top-color: #D3D3D3;
 }
-#fcqcquyyuv .gt_last_grand_summary_row_top {
+#dtlfgpuxty .gt_last_grand_summary_row_top {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -2935,10 +2964,10 @@ border-bottom-style: double;
 border-bottom-width: 6px;
 border-bottom-color: #D3D3D3;
 }
-#fcqcquyyuv .gt_striped {
+#dtlfgpuxty .gt_striped {
 background-color: rgba(128, 128, 128, 0.05);
 }
-#fcqcquyyuv .gt_table_body {
+#dtlfgpuxty .gt_table_body {
 border-top-style: solid;
 border-top-width: 2px;
 border-top-color: #D3D3D3;
@@ -2946,7 +2975,7 @@ border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 }
-#fcqcquyyuv .gt_footnotes {
+#dtlfgpuxty .gt_footnotes {
 color: #333333;
 background-color: #FFFFFF;
 border-bottom-style: none;
@@ -2959,7 +2988,7 @@ border-right-style: none;
 border-right-width: 2px;
 border-right-color: #D3D3D3;
 }
-#fcqcquyyuv .gt_footnote {
+#dtlfgpuxty .gt_footnote {
 margin: 0px;
 font-size: 90%;
 padding-top: 4px;
@@ -2967,7 +2996,7 @@ padding-bottom: 4px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#fcqcquyyuv .gt_sourcenotes {
+#dtlfgpuxty .gt_sourcenotes {
 color: #333333;
 background-color: #FFFFFF;
 border-bottom-style: none;
@@ -2980,86 +3009,91 @@ border-right-style: none;
 border-right-width: 2px;
 border-right-color: #D3D3D3;
 }
-#fcqcquyyuv .gt_sourcenote {
+#dtlfgpuxty .gt_sourcenote {
 font-size: 90%;
 padding-top: 4px;
 padding-bottom: 4px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#fcqcquyyuv .gt_left {
+#dtlfgpuxty .gt_left {
 text-align: left;
 }
-#fcqcquyyuv .gt_center {
+#dtlfgpuxty .gt_center {
 text-align: center;
 }
-#fcqcquyyuv .gt_right {
+#dtlfgpuxty .gt_right {
 text-align: right;
 font-variant-numeric: tabular-nums;
 }
-#fcqcquyyuv .gt_font_normal {
+#dtlfgpuxty .gt_font_normal {
 font-weight: normal;
 }
-#fcqcquyyuv .gt_font_bold {
+#dtlfgpuxty .gt_font_bold {
 font-weight: bold;
 }
-#fcqcquyyuv .gt_font_italic {
+#dtlfgpuxty .gt_font_italic {
 font-style: italic;
 }
-#fcqcquyyuv .gt_super {
+#dtlfgpuxty .gt_super {
 font-size: 65%;
 }
-#fcqcquyyuv .gt_footnote_marks {
+#dtlfgpuxty .gt_footnote_marks {
 font-size: 75%;
 vertical-align: 0.4em;
 position: initial;
 }
-#fcqcquyyuv .gt_asterisk {
+#dtlfgpuxty .gt_asterisk {
 font-size: 100%;
 vertical-align: 0;
 }
-#fcqcquyyuv .gt_indent_1 {
+#dtlfgpuxty .gt_indent_1 {
 text-indent: 5px;
 }
-#fcqcquyyuv .gt_indent_2 {
+#dtlfgpuxty .gt_indent_2 {
 text-indent: 10px;
 }
-#fcqcquyyuv .gt_indent_3 {
+#dtlfgpuxty .gt_indent_3 {
 text-indent: 15px;
 }
-#fcqcquyyuv .gt_indent_4 {
+#dtlfgpuxty .gt_indent_4 {
 text-indent: 20px;
 }
-#fcqcquyyuv .gt_indent_5 {
+#dtlfgpuxty .gt_indent_5 {
 text-indent: 25px;
 }
-#fcqcquyyuv .katex-display {
+#dtlfgpuxty .katex-display {
 display: inline-flex !important;
 margin-bottom: 0.75em !important;
 }
-#fcqcquyyuv div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#dtlfgpuxty div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
 height: 0px !important;
 }
 </style>
 
 <table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
 </colgroup>
 <thead>
 <tr class="gt_col_headings header">
 <th id="label" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Characteristic</strong></th>
-<th id="stat_1" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>0</strong><br>
-N = 3,307<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span></th>
-<th id="stat_2" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>1</strong><br>
+<th id="stat_0" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>Overall</strong><br>
+N = 5,168<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span></th>
+<th id="stat_1" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>Indication of NAFLD</strong><br>
 N = 1,861<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span></th>
+<th id="stat_2" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>No Indication of NAFLD</strong><br>
+N = 3,307<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span></th>
 </tr>
 </thead>
 <tbody class="gt_table_body">
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">gender</td>
+<td class="gt_row gt_center" headers="stat_0"><br>
+</td>
 <td class="gt_row gt_center" headers="stat_1"><br>
 </td>
 <td class="gt_row gt_center" headers="stat_2"><br>
@@ -3067,16 +3101,20 @@ N = 1,861<span class="gt_footnote_marks" style="white-space:nowrap;font-style:it
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">    Male</td>
-<td class="gt_row gt_center" headers="stat_1">1,659 (50%)</td>
-<td class="gt_row gt_center" headers="stat_2">1,067 (57%)</td>
+<td class="gt_row gt_center" headers="stat_0">2,726 (53%)</td>
+<td class="gt_row gt_center" headers="stat_1">1,067 (57%)</td>
+<td class="gt_row gt_center" headers="stat_2">1,659 (50%)</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">    Female</td>
-<td class="gt_row gt_center" headers="stat_1">1,648 (50%)</td>
-<td class="gt_row gt_center" headers="stat_2">794 (43%)</td>
+<td class="gt_row gt_center" headers="stat_0">2,442 (47%)</td>
+<td class="gt_row gt_center" headers="stat_1">794 (43%)</td>
+<td class="gt_row gt_center" headers="stat_2">1,648 (50%)</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">race</td>
+<td class="gt_row gt_center" headers="stat_0"><br>
+</td>
 <td class="gt_row gt_center" headers="stat_1"><br>
 </td>
 <td class="gt_row gt_center" headers="stat_2"><br>
@@ -3084,36 +3122,44 @@ N = 1,861<span class="gt_footnote_marks" style="white-space:nowrap;font-style:it
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">    Mexican American</td>
-<td class="gt_row gt_center" headers="stat_1">251 (7.6%)</td>
-<td class="gt_row gt_center" headers="stat_2">224 (12%)</td>
+<td class="gt_row gt_center" headers="stat_0">475 (9.2%)</td>
+<td class="gt_row gt_center" headers="stat_1">224 (12%)</td>
+<td class="gt_row gt_center" headers="stat_2">251 (7.6%)</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">    Other Hispanic</td>
-<td class="gt_row gt_center" headers="stat_1">321 (9.7%)</td>
-<td class="gt_row gt_center" headers="stat_2">159 (8.5%)</td>
+<td class="gt_row gt_center" headers="stat_0">480 (9.3%)</td>
+<td class="gt_row gt_center" headers="stat_1">159 (8.5%)</td>
+<td class="gt_row gt_center" headers="stat_2">321 (9.7%)</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">    Non-Hispanic White</td>
-<td class="gt_row gt_center" headers="stat_1">1,473 (45%)</td>
-<td class="gt_row gt_center" headers="stat_2">923 (50%)</td>
+<td class="gt_row gt_center" headers="stat_0">2,396 (46%)</td>
+<td class="gt_row gt_center" headers="stat_1">923 (50%)</td>
+<td class="gt_row gt_center" headers="stat_2">1,473 (45%)</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">    Non-Hispanic Black</td>
-<td class="gt_row gt_center" headers="stat_1">718 (22%)</td>
-<td class="gt_row gt_center" headers="stat_2">301 (16%)</td>
+<td class="gt_row gt_center" headers="stat_0">1,019 (20%)</td>
+<td class="gt_row gt_center" headers="stat_1">301 (16%)</td>
+<td class="gt_row gt_center" headers="stat_2">718 (22%)</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">    Non-Hispanic Asian</td>
-<td class="gt_row gt_center" headers="stat_1">362 (11%)</td>
-<td class="gt_row gt_center" headers="stat_2">170 (9.1%)</td>
+<td class="gt_row gt_center" headers="stat_0">532 (10%)</td>
+<td class="gt_row gt_center" headers="stat_1">170 (9.1%)</td>
+<td class="gt_row gt_center" headers="stat_2">362 (11%)</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">    Other Race - Including Multi-Racial</td>
-<td class="gt_row gt_center" headers="stat_1">182 (5.5%)</td>
-<td class="gt_row gt_center" headers="stat_2">84 (4.5%)</td>
+<td class="gt_row gt_center" headers="stat_0">266 (5.1%)</td>
+<td class="gt_row gt_center" headers="stat_1">84 (4.5%)</td>
+<td class="gt_row gt_center" headers="stat_2">182 (5.5%)</td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="label">education</td>
+<td class="gt_row gt_left" headers="label">Education</td>
+<td class="gt_row gt_center" headers="stat_0"><br>
+</td>
 <td class="gt_row gt_center" headers="stat_1"><br>
 </td>
 <td class="gt_row gt_center" headers="stat_2"><br>
@@ -3121,71 +3167,86 @@ N = 1,861<span class="gt_footnote_marks" style="white-space:nowrap;font-style:it
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">    Less than 9th grade</td>
-<td class="gt_row gt_center" headers="stat_1">139 (4.6%)</td>
-<td class="gt_row gt_center" headers="stat_2">111 (6.1%)</td>
+<td class="gt_row gt_center" headers="stat_0">250 (5.1%)</td>
+<td class="gt_row gt_center" headers="stat_1">111 (6.1%)</td>
+<td class="gt_row gt_center" headers="stat_2">139 (4.6%)</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">    9-11th grade (Includes 12th grade with no diploma)</td>
-<td class="gt_row gt_center" headers="stat_1">211 (6.9%)</td>
-<td class="gt_row gt_center" headers="stat_2">130 (7.2%)</td>
+<td class="gt_row gt_center" headers="stat_0">341 (7.0%)</td>
+<td class="gt_row gt_center" headers="stat_1">130 (7.2%)</td>
+<td class="gt_row gt_center" headers="stat_2">211 (6.9%)</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">    High school graduate/GED or equivalent</td>
-<td class="gt_row gt_center" headers="stat_1">574 (19%)</td>
-<td class="gt_row gt_center" headers="stat_2">375 (21%)</td>
+<td class="gt_row gt_center" headers="stat_0">949 (20%)</td>
+<td class="gt_row gt_center" headers="stat_1">375 (21%)</td>
+<td class="gt_row gt_center" headers="stat_2">574 (19%)</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">    Some college or AA degree</td>
-<td class="gt_row gt_center" headers="stat_1">878 (29%)</td>
-<td class="gt_row gt_center" headers="stat_2">591 (33%)</td>
+<td class="gt_row gt_center" headers="stat_0">1,469 (30%)</td>
+<td class="gt_row gt_center" headers="stat_1">591 (33%)</td>
+<td class="gt_row gt_center" headers="stat_2">878 (29%)</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">    College graduate or above</td>
-<td class="gt_row gt_center" headers="stat_1">1,249 (41%)</td>
-<td class="gt_row gt_center" headers="stat_2">607 (33%)</td>
+<td class="gt_row gt_center" headers="stat_0">1,856 (38%)</td>
+<td class="gt_row gt_center" headers="stat_1">607 (33%)</td>
+<td class="gt_row gt_center" headers="stat_2">1,249 (41%)</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">    Refused</td>
+<td class="gt_row gt_center" headers="stat_0">0 (0%)</td>
 <td class="gt_row gt_center" headers="stat_1">0 (0%)</td>
 <td class="gt_row gt_center" headers="stat_2">0 (0%)</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">    Don&#39;t Know</td>
+<td class="gt_row gt_center" headers="stat_0">0 (0%)</td>
 <td class="gt_row gt_center" headers="stat_1">0 (0%)</td>
-<td class="gt_row gt_center" headers="stat_2">2 (0.1%)</td>
+<td class="gt_row gt_center" headers="stat_2">0 (0%)</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">    Don&#39;t know</td>
+<td class="gt_row gt_center" headers="stat_0">0 (0%)</td>
 <td class="gt_row gt_center" headers="stat_1">0 (0%)</td>
 <td class="gt_row gt_center" headers="stat_2">0 (0%)</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">    Unknown</td>
-<td class="gt_row gt_center" headers="stat_1">256</td>
-<td class="gt_row gt_center" headers="stat_2">45</td>
+<td class="gt_row gt_center" headers="stat_0">303</td>
+<td class="gt_row gt_center" headers="stat_1">47</td>
+<td class="gt_row gt_center" headers="stat_2">256</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">BloodCadmium_ugL</td>
-<td class="gt_row gt_center" headers="stat_1">0.26 (0.17, 0.44)</td>
-<td class="gt_row gt_center" headers="stat_2">0.23 (0.15, 0.38)</td>
+<td class="gt_row gt_center" headers="stat_0">0.25 (0.16, 0.42)</td>
+<td class="gt_row gt_center" headers="stat_1">0.23 (0.15, 0.38)</td>
+<td class="gt_row gt_center" headers="stat_2">0.26 (0.17, 0.44)</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">    Unknown</td>
-<td class="gt_row gt_center" headers="stat_1">5</td>
-<td class="gt_row gt_center" headers="stat_2">0</td>
+<td class="gt_row gt_center" headers="stat_0">5</td>
+<td class="gt_row gt_center" headers="stat_1">0</td>
+<td class="gt_row gt_center" headers="stat_2">5</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">BloodLead_ugL</td>
-<td class="gt_row gt_center" headers="stat_1">0.78 (0.48, 1.26)</td>
-<td class="gt_row gt_center" headers="stat_2">0.81 (0.51, 1.24)</td>
+<td class="gt_row gt_center" headers="stat_0">0.79 (0.49, 1.26)</td>
+<td class="gt_row gt_center" headers="stat_1">0.81 (0.51, 1.24)</td>
+<td class="gt_row gt_center" headers="stat_2">0.78 (0.48, 1.26)</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">    Unknown</td>
-<td class="gt_row gt_center" headers="stat_1">5</td>
-<td class="gt_row gt_center" headers="stat_2">0</td>
+<td class="gt_row gt_center" headers="stat_0">5</td>
+<td class="gt_row gt_center" headers="stat_1">0</td>
+<td class="gt_row gt_center" headers="stat_2">5</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">Smoke</td>
+<td class="gt_row gt_center" headers="stat_0"><br>
+</td>
 <td class="gt_row gt_center" headers="stat_1"><br>
 </td>
 <td class="gt_row gt_center" headers="stat_2"><br>
@@ -3193,41 +3254,50 @@ N = 1,861<span class="gt_footnote_marks" style="white-space:nowrap;font-style:it
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">    Yes</td>
-<td class="gt_row gt_center" headers="stat_1">933 (28%)</td>
-<td class="gt_row gt_center" headers="stat_2">630 (34%)</td>
+<td class="gt_row gt_center" headers="stat_0">1,563 (30%)</td>
+<td class="gt_row gt_center" headers="stat_1">630 (34%)</td>
+<td class="gt_row gt_center" headers="stat_2">933 (28%)</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">    No</td>
-<td class="gt_row gt_center" headers="stat_1">2,370 (72%)</td>
-<td class="gt_row gt_center" headers="stat_2">1,231 (66%)</td>
+<td class="gt_row gt_center" headers="stat_0">3,601 (70%)</td>
+<td class="gt_row gt_center" headers="stat_1">1,231 (66%)</td>
+<td class="gt_row gt_center" headers="stat_2">2,370 (72%)</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">    Refused</td>
-<td class="gt_row gt_center" headers="stat_1">1 (&lt;0.1%)</td>
+<td class="gt_row gt_center" headers="stat_0">0 (0%)</td>
+<td class="gt_row gt_center" headers="stat_1">0 (0%)</td>
 <td class="gt_row gt_center" headers="stat_2">0 (0%)</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">    Don&#39;t know</td>
-<td class="gt_row gt_center" headers="stat_1">2 (&lt;0.1%)</td>
+<td class="gt_row gt_center" headers="stat_0">0 (0%)</td>
+<td class="gt_row gt_center" headers="stat_1">0 (0%)</td>
 <td class="gt_row gt_center" headers="stat_2">0 (0%)</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">    Unknown</td>
-<td class="gt_row gt_center" headers="stat_1">1</td>
-<td class="gt_row gt_center" headers="stat_2">0</td>
+<td class="gt_row gt_center" headers="stat_0">4</td>
+<td class="gt_row gt_center" headers="stat_1">0</td>
+<td class="gt_row gt_center" headers="stat_2">4</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">BMI</td>
-<td class="gt_row gt_center" headers="stat_1">26 (23, 30)</td>
-<td class="gt_row gt_center" headers="stat_2">33 (29, 38)</td>
+<td class="gt_row gt_center" headers="stat_0">28 (25, 33)</td>
+<td class="gt_row gt_center" headers="stat_1">33 (29, 38)</td>
+<td class="gt_row gt_center" headers="stat_2">26 (23, 30)</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">    Unknown</td>
-<td class="gt_row gt_center" headers="stat_1">20</td>
-<td class="gt_row gt_center" headers="stat_2">3</td>
+<td class="gt_row gt_center" headers="stat_0">23</td>
+<td class="gt_row gt_center" headers="stat_1">3</td>
+<td class="gt_row gt_center" headers="stat_2">20</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">Diabetes</td>
+<td class="gt_row gt_center" headers="stat_0"><br>
+</td>
 <td class="gt_row gt_center" headers="stat_1"><br>
 </td>
 <td class="gt_row gt_center" headers="stat_2"><br>
@@ -3235,67 +3305,85 @@ N = 1,861<span class="gt_footnote_marks" style="white-space:nowrap;font-style:it
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">    Yes</td>
-<td class="gt_row gt_center" headers="stat_1">261 (7.9%)</td>
-<td class="gt_row gt_center" headers="stat_2">432 (23%)</td>
+<td class="gt_row gt_center" headers="stat_0">693 (13%)</td>
+<td class="gt_row gt_center" headers="stat_1">432 (23%)</td>
+<td class="gt_row gt_center" headers="stat_2">261 (7.9%)</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">    No</td>
-<td class="gt_row gt_center" headers="stat_1">2,963 (90%)</td>
-<td class="gt_row gt_center" headers="stat_2">1,351 (73%)</td>
+<td class="gt_row gt_center" headers="stat_0">4,314 (84%)</td>
+<td class="gt_row gt_center" headers="stat_1">1,351 (73%)</td>
+<td class="gt_row gt_center" headers="stat_2">2,963 (90%)</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">    Borderline</td>
-<td class="gt_row gt_center" headers="stat_1">80 (2.4%)</td>
-<td class="gt_row gt_center" headers="stat_2">78 (4.2%)</td>
+<td class="gt_row gt_center" headers="stat_0">158 (3.1%)</td>
+<td class="gt_row gt_center" headers="stat_1">78 (4.2%)</td>
+<td class="gt_row gt_center" headers="stat_2">80 (2.4%)</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">    Don&#39;t know</td>
-<td class="gt_row gt_center" headers="stat_1">3 (&lt;0.1%)</td>
+<td class="gt_row gt_center" headers="stat_0">0 (0%)</td>
+<td class="gt_row gt_center" headers="stat_1">0 (0%)</td>
 <td class="gt_row gt_center" headers="stat_2">0 (0%)</td>
 </tr>
 <tr class="even">
+<td class="gt_row gt_left" headers="label">    Unknown</td>
+<td class="gt_row gt_center" headers="stat_0">3</td>
+<td class="gt_row gt_center" headers="stat_1">0</td>
+<td class="gt_row gt_center" headers="stat_2">3</td>
+</tr>
+<tr class="odd">
 <td class="gt_row gt_left" headers="label">estronelevel_ngdL</td>
-<td class="gt_row gt_center" headers="stat_1">3.44 (2.46, 5.05)</td>
-<td class="gt_row gt_center" headers="stat_2">3.66 (2.61, 5.18)</td>
-</tr>
-<tr class="odd">
-<td class="gt_row gt_left" headers="label">    Unknown</td>
-<td class="gt_row gt_center" headers="stat_1">307</td>
-<td class="gt_row gt_center" headers="stat_2">191</td>
+<td class="gt_row gt_center" headers="stat_0">3.54 (2.51, 5.09)</td>
+<td class="gt_row gt_center" headers="stat_1">3.66 (2.61, 5.18)</td>
+<td class="gt_row gt_center" headers="stat_2">3.44 (2.46, 5.05)</td>
 </tr>
 <tr class="even">
+<td class="gt_row gt_left" headers="label">    Unknown</td>
+<td class="gt_row gt_center" headers="stat_0">498</td>
+<td class="gt_row gt_center" headers="stat_1">191</td>
+<td class="gt_row gt_center" headers="stat_2">307</td>
+</tr>
+<tr class="odd">
 <td class="gt_row gt_left" headers="label">estronesulfate_ngdL</td>
-<td class="gt_row gt_center" headers="stat_1">482 (250, 902)</td>
-<td class="gt_row gt_center" headers="stat_2">534 (288, 937)</td>
-</tr>
-<tr class="odd">
-<td class="gt_row gt_left" headers="label">    Unknown</td>
-<td class="gt_row gt_center" headers="stat_1">361</td>
-<td class="gt_row gt_center" headers="stat_2">210</td>
+<td class="gt_row gt_center" headers="stat_0">503 (262, 917)</td>
+<td class="gt_row gt_center" headers="stat_1">534 (288, 937)</td>
+<td class="gt_row gt_center" headers="stat_2">482 (250, 902)</td>
 </tr>
 <tr class="even">
+<td class="gt_row gt_left" headers="label">    Unknown</td>
+<td class="gt_row gt_center" headers="stat_0">571</td>
+<td class="gt_row gt_center" headers="stat_1">210</td>
+<td class="gt_row gt_center" headers="stat_2">361</td>
+</tr>
+<tr class="odd">
 <td class="gt_row gt_left" headers="label">firstmenstration</td>
-<td class="gt_row gt_center" headers="stat_1">13.00 (12.00, 14.00)</td>
-<td class="gt_row gt_center" headers="stat_2">12.00 (11.00, 13.00)</td>
-</tr>
-<tr class="odd">
-<td class="gt_row gt_left" headers="label">    Unknown</td>
-<td class="gt_row gt_center" headers="stat_1">1,661</td>
-<td class="gt_row gt_center" headers="stat_2">1,067</td>
+<td class="gt_row gt_center" headers="stat_0">12.00 (12.00, 14.00)</td>
+<td class="gt_row gt_center" headers="stat_1">12.00 (11.00, 13.00)</td>
+<td class="gt_row gt_center" headers="stat_2">13.00 (12.00, 14.00)</td>
 </tr>
 <tr class="even">
-<td class="gt_row gt_left" headers="label">Menopause</td>
-<td class="gt_row gt_center" headers="stat_1">863 (66%)</td>
-<td class="gt_row gt_center" headers="stat_2">545 (75%)</td>
+<td class="gt_row gt_left" headers="label">    Unknown</td>
+<td class="gt_row gt_center" headers="stat_0">2,728</td>
+<td class="gt_row gt_center" headers="stat_1">1,067</td>
+<td class="gt_row gt_center" headers="stat_2">1,661</td>
 </tr>
 <tr class="odd">
+<td class="gt_row gt_left" headers="label">Menopause</td>
+<td class="gt_row gt_center" headers="stat_0">1,408 (69%)</td>
+<td class="gt_row gt_center" headers="stat_1">545 (75%)</td>
+<td class="gt_row gt_center" headers="stat_2">863 (66%)</td>
+</tr>
+<tr class="even">
 <td class="gt_row gt_left" headers="label">    Unknown</td>
-<td class="gt_row gt_center" headers="stat_1">1,993</td>
-<td class="gt_row gt_center" headers="stat_2">1,138</td>
+<td class="gt_row gt_center" headers="stat_0">3,131</td>
+<td class="gt_row gt_center" headers="stat_1">1,138</td>
+<td class="gt_row gt_center" headers="stat_2">1,993</td>
 </tr>
 </tbody><tfoot>
 <tr class="gt_footnotes odd">
-<td colspan="3" class="gt_footnote"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> n (%); Median (Q1, Q3)</td>
+<td colspan="4" class="gt_footnote"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> n (%); Median (Q1, Q3)</td>
 </tr>
 </tfoot>
 
@@ -3304,10 +3392,6 @@ N = 1,861<span class="gt_footnote_marks" style="white-space:nowrap;font-style:it
 </div>
 </div>
 </div>
-</section>
-<section id="sec-results" class="level2" data-number="2.2">
-<h2 data-number="2.2" class="anchored" data-anchor-id="sec-results"><span class="header-section-number">2.2</span> Results</h2>
-<p>Describe your results and include relevant tables, plots, and code/comments used to obtain them. You may refer to the <a href="#sec-methods" class="quarto-xref">Section 2.1</a> as needed. End with a brief conclusion of your findings related to the question you set out to address. You can include references if you’d like, but this is not required.</p>
 </section>
 <section id="conclusion" class="level2" data-number="2.3">
 <h2 data-number="2.3" class="anchored" data-anchor-id="conclusion"><span class="header-section-number">2.3</span> Conclusion</h2>

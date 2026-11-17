@@ -22,6 +22,8 @@ When speaking to **Dr. Angela Aherrera**, Assistant Professor of Biostatistics a
 
 ## Methods {#sec-methods}
 
+In this study data will be pulled from the National Health and Nutrition Examination Survey (NHANES) between 2017 and 2023. This data is specifically from the continuous surveys from 2017 to March 2020, and August 2021-2023. The relevant variables (Table 1) will be added to our data set, and a cohort will be constructed. In this study we will use the cut off of 285 dB/m for CAP to be our indication of NAFLD. A new variable will be constructed to show this cut off. Other variables created was if one was experiencing menopause in our study those who were women, were above the age of 30, and have not experienced a period within a year were considered to be on menopause.
+
 ```{r}
 #installing NHANES Data
 #install.packages("nhanesA")
@@ -57,11 +59,19 @@ Dia_var<- c("SEQN","DIQ010")
 estr_var<- c("SEQN","LBXESO", "LBDESOSI", "LBDESOLC","LBXES1", "LBDES1SI", "LBDES1LC")
 #Reproductive health (first period,menopause)
 repo_var<- c("SEQN","RHQ010",'RHQ060')
+
+#Weights
+weights20172020<- c("SEQN","WTINTPRP","WTMECPRP")
+weights20212023<- c("SEQN","WTINT2YR","WTMEC2YR")
 #adding data
 
 demo <- bind_rows(
   nhanes("P_DEMO") |> select(all_of(demo_vars)),
   nhanes("DEMO_L") |> select(all_of(demo_vars))
+)
+weights <- bind_rows(
+  nhanes("P_DEMO") |> select(all_of(weights20172020)),
+  nhanes("DEMO_L") |> select(all_of(weights20212023))
 )
 demoW <- bind_rows(
   nhanes("P_DEMO") |> select(all_of(demo_vars)),
@@ -113,6 +123,7 @@ RepoData <- bind_rows(
 )
 
 nhanes_dataJA <- left_join(demo, BloodMetals, by = "SEQN")
+nhanes_dataJA <- left_join(nhanes_dataJA,weights, by = "SEQN")
 nhanes_dataJA <- left_join(nhanes_dataJA,liverdata, by = "SEQN")
 nhanes_dataJA <- left_join(nhanes_dataJA,HepBData, by = "SEQN")
 nhanes_dataJA <- left_join(nhanes_dataJA,AlcData, by = "SEQN")
@@ -163,7 +174,7 @@ Table 1: All variables uploaded from NHANES Data
 ```{r}
 
 #clean NHANES data 
-clean_NHANES <- nhanes_dataJA %>% drop_na(LUXCAPM,ALQ111,LBDHCI,LBXHBC)
+clean_NHANES <- nhanes_dataJA |> drop_na(LUXCAPM,ALQ111,LBDHCI,LBXHBC)
 
 #Heavy Chronic Drinking (NIAAA Definition) On data when drinking 1 for women 2 for men.
 malenondrinkers <- subset(clean_NHANES, RIAGENDR == "Male" & ALQ130 <= 2)
@@ -172,7 +183,6 @@ nondrinkers<- subset(clean_NHANES, ALQ111=="No")
 
 #all nondrinkers and no excessive drinking
 nondrinkers <- rbind(nondrinkers, femalenondrinkers, malenondrinkers)
-nondrinkers
 table(nondrinkers$LBDHCI)
 
 #add menopause data only counting menopause data among woman over 
@@ -192,18 +202,41 @@ cohort$NAFLDind<-if_else(cohort$LUXCAPM>=285,1,0)
 table(cohort$NAFLDind)
 
 #rename variables
-cohortrenamed<-cohort|>rename(id = SEQN, surveyyear=SDDSRVYR, gender = RIAGENDR, age = RIDAGEYR,race = RIDRETH3, education = DMDEDUC2,
+cohortrenamed<-cohort|>rename(id = SEQN, surveyyear=SDDSRVYR, gender = RIAGENDR, age = RIDAGEYR,race = RIDRETH3, Education = DMDEDUC2,
        BloodCadmium_ugL = LBXBCD, BloodLead_ugL=LBXBPB, 
        Smoke=SMQ020, BMI=BMXBMI, Diabetes=DIQ010, estronelevel_ngdL=LBXESO, estronesulfate_ngdL=LBXES1, firstmenstration=RHQ010
        )
+
+#making I dont knows into Unknowns.
+cohortrenamed<-cohortrenamed|> mutate(Education=if_else(Education %in% c("Don't know", "Don't Know", "Refused"), NA,Education))
+cohortrenamed<-cohortrenamed|> mutate(Smoke=if_else(Smoke %in% c("Don't know", "Refused"), NA,Smoke))
+cohortrenamed<-cohortrenamed|> mutate(Diabetes=if_else(Diabetes %in% c("Don't know"), NA,Diabetes))
+cohortrenamed<-cohortrenamed|> mutate(Diabetes=if_else(Diabetes %in% c("Borderline"), NA,Diabetes))
 #some analysis ideas Build a model to predict? Build a cohort Sex differences anylsis. How many cases/controls (indication values vs not indicatios). Descriptive (Table 1). Unsupervised (clustering) as exploritory then do some supervised. Final predictive can we predict the level of assoiatiom RF, reg (lasso), decision tree, feature importance analysis. Maybe male vs female (two different models)
 
-tbl_summary (cohortrenamed,by=NAFLDind,include=c(gender,race,education,BloodCadmium_ugL,BloodLead_ugL,Smoke,BMI,Diabetes,estronelevel_ngdL,estronesulfate_ngdL,firstmenstration,Menopause))
+
 ```
 
 ## Results {#sec-results}
 
-Describe your results and include relevant tables, plots, and code/comments used to obtain them. You may refer to the @sec-methods as needed. End with a brief conclusion of your findings related to the question you set out to address. You can include references if you'd like, but this is not required.
+```{r}
+tbl_summary (cohortrenamed,by=NAFLDind,include=c(gender,race,Education,BloodCadmium_ugL,BloodLead_ugL,Smoke,BMI,Diabetes,estronelevel_ngdL,estronesulfate_ngdL,firstmenstration,Menopause))|>
+  add_overall()
+```
+
+```{r}
+#need all variables except for status
+cohortrenamednoind<- names(cohortrenamed)[names(cohortrenamed) != "NAFLDind"]
+
+#put in an empty table
+resultsSimData2B<- data.frame(cohortrenamednoind=character(), p_value= numeric())
+model= glm(NAFLDind~gender+race+Education+BloodCadmium_ugL+BloodLead_ugL+Smoke+BMI+Diabetes,family="binomial",data=cohortrenamed)
+summary(model)
+
+
+```
+
+This is just the initial regression model. The other models will be made.
 
 ## Conclusion
 
